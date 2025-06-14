@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>شات دردشة احترافي</title>
+<style>
+  /* استايلات عامة */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #333;
+    transition: background-image 0.5s ease;
+  }
+
+  /* حاوية تسجيل الدخول */
+  .login-container {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0,0,0,0.7);
+    z-index: 10;
+    backdrop-filter: blur(5px);
+  }
+
+  #loginBox {
+    background: rgba(255,255,255,0.95);
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    text-align: center;
+    animation: fadeIn 0.8s ease;
+  }
+
+  #loginBox h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #2a5298;
+    font-size: 1.8rem;
+  }
+
+  #loginBox input {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 2px solid #ddd;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+  }
+
+  #loginBox input:focus {
+    border-color: #2a5298;
+    box-shadow: 0 0 8px rgba(42, 82, 152, 0.3);
+    outline: none;
+  }
+
+  #loginBox button {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    margin-top: 10px;
+    font-weight: 600;
+    transition: transform 0.2s, background-color 0.3s;
+  }
+
+  #loginBox button:hover {
+    transform: translateY(-2px);
+  }
+
+  #loginBtn {
+    background: linear-gradient(to right, #2a5298, #1e3c72);
+  }
+
+  #loginBtn:hover {
+    background: linear-gradient(to right, #1e3c72, #2a5298);
+  }
+
+  /* حاوية الشات */
+  #chatContainer {
+    display: none;
+    flex-direction: column;
+    width: 95%;
+    height: 90vh;
+    max-width: 1000px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    transition: background-color 0.5s;
+  }
+
+  /* رأس الشات */
+  .chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to right, #2a5298, #1e3c72);
+    padding: 15px 20px;
+    color: white;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  }
+
+  /* عنوان المستخدم */
+  #userNameDisplay {
+    font-weight: bold;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .user-icon {
+    background: #fff;
+    color: #2a5298;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+
+  /* أزرار في الرأس */
+  #headerButtons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .header-btn {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .header-btn:hover {
+    background: rgba(255,255,255,0.25);
+    transform: translateY(-2px);
+  }
+
+  #logoutBtn {
+    background: rgba(220, 53, 69, 0.8);
+  }
+
+  #logoutBtn:hover {
+    background: rgba(167, 29, 42, 0.9);
+  }
+
+  /* منطقة الرسائل */
+  .messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    background: rgba(245, 247, 250, 0.7);
+    transition: background-color 0.5s;
+    
+    /* شريط التمرير الجديد */
+    scrollbar-width: thin;
+    scrollbar-color: #2a5298 rgba(245, 247, 250, 0.5);
+  }
+
+  /* تخصيص شريط التمرير */
+  .messages::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .messages::-webkit-scrollbar-track {
+    background: rgba(245, 247, 250, 0.5);
+    border-radius: 5px;
+  }
+
+  .messages::-webkit-scrollbar-thumb {
+    background: #2a5298;
+    border-radius: 5px;
+    border: 2px solid rgba(245, 247, 250, 0.5);
+  }
+
+  .messages::-webkit-scrollbar-thumb:hover {
+    background: #1e3c72;
+  }
+
+  /* كل رسالة */
+  .message {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    max-width: 100%;
+    animation: fadeIn 0.3s ease;
+  }
+
+  /* اسم المستخدم المرافق للرسالة */
+  .sender-name {
+    font-weight: bold;
+    margin-right: 10px;
+    flex-shrink: 0;
+    cursor: default;
+    color: #2a5298;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .sender-icon {
+    background: #2a5298;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8em;
+    font-weight: bold;
+  }
+
+  /* اسم المستخدم قابل للنقر فقط للمسؤول */
+  .sender-name.clickable {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .sender-name.clickable:hover {
+    color: #1e3c72;
+  }
+
+  /* نص الرسالة */
+  .message-content {
+    background-color: #fff;
+    padding: 12px 18px;
+    border-radius: 18px;
+    position: relative;
+    max-width: 80%;
+    word-wrap: break-word;
+    transition: background-color 0.3s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border: 1px solid #eaeaea;
+  }
+
+  /* تغيير لون النص عند الوصول للميزة */
+  .message-text {
+    font-size: 1em;
+    line-height: 1.5;
+  }
+
+  /* الرسائل المرسلة من المستخدم */
+  .sent {
+    flex-direction: row-reverse;
+    align-self: flex-end;
+  }
+
+  /* خلفية الرسائل المرسلة */
+  .sent .message-content {
+    background-color: #e3f2fd;
+    border: 1px solid #bbdefb;
+  }
+
+  /* منطقة الإدخال */
+  .input-area {
+    display: flex;
+    padding: 15px;
+    background: rgba(255,255,255,0.9);
+    border-top: 1px solid #eee;
+    gap: 10px;
+  }
+
+  #messageInput {
+    flex: 1;
+    padding: 15px;
+    border-radius: 25px;
+    border: 2px solid #e0e0e0;
+    outline: none;
+    font-size: 16px;
+    transition: all 0.3s;
+  }
+
+  #messageInput:focus {
+    border-color: #2a5298;
+    box-shadow: 0 0 10px rgba(42, 82, 152, 0.2);
+    outline: none;
+  }
+
+  /* أزرار الإدخال */
+  .input-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    color: white;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  }
+
+  .input-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+  }
+
+  /* زر الإرسال */
+  #sendBtn {
+    background: linear-gradient(to right, #2a5298, #1e3c72);
+  }
+
+  /* زر المايكروفون لإرسال صوت */
+  #voiceBtn {
+    background: linear-gradient(to right, #28a745, #218838);
+    position: relative;
+  }
+
+  /* زر إرسال الصور */
+  #imageBtn {
+    background: linear-gradient(to right, #ff9800, #f57c00);
+  }
+
+  /* زر مسح */
+  #deleteBtn {
+    background: linear-gradient(to right, #f44336, #d32f2f);
+    display: none; /* مخفي بشكل افتراضي */
+  }
+
+  /* استجابة للموبايل */
+  @media(max-width: 768px) {
+    #messageInput {
+      font-size: 14px;
+      padding: 12px;
+    }
+    
+    .input-btn {
+      width: 45px;
+      height: 45px;
+    }
+    
+    .header-btn {
+      padding: 6px 10px;
+      font-size: 0.8em;
+    }
+    
+    /* شريط تمرير أضيق على الجوال */
+    .messages::-webkit-scrollbar {
+      width: 6px;
+    }
+  }
+
+  /* الرسائل الصور */
+  .message img {
+    max-width: 250px;
+    border-radius: 10px;
+    margin-top: 5px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  }
+
+  /* رسائل الصوت */
+  .audio-message {
+    width: 100%;
+    margin-top: 5px;
+    background: #f5f5f5;
+    border-radius: 20px;
+    padding: 8px;
+  }
+
+  /* مؤشر التسجيل */
+  .recording-indicator {
+    display: none;
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: bold;
+    z-index: 100;
+    animation: pulse 1.5s infinite;
+  }
+
+  /* نافذة إهداء النقاط */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-content {
+    background: #fff;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    animation: slideDown 0.4s ease;
+  }
+
+  .modal-content h3 {
+    margin-top: 0;
+    color: #2a5298;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+  }
+
+  .modal-input {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+    margin: 15px 0;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .modal-input:focus {
+    border-color: #2a5298;
+    box-shadow: 0 0 10px rgba(42, 82, 152, 0.2);
+    outline: none;
+  }
+
+  .modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 15px;
+  }
+
+  .modal-btn {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s;
+    color: white;
+  }
+
+  .modal-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+  }
+
+  .confirm-btn {
+    background: linear-gradient(to right, #28a745, #218838);
+  }
+
+  .cancel-btn {
+    background: linear-gradient(to right, #6c757d, #5a6268);
+  }
+  
+  /* رسالة البوت الديني */
+  .bot-message .message-content {
+    background: #f0f7ff;
+    border: 1px solid #d1e7ff;
+  }
+  
+  /* إطار اليوتيوب */
+  .youtube-frame {
+    width: 100%;
+    height: 200px;
+    border-radius: 10px;
+    margin-top: 15px;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  
+  /* مؤقت التسجيل */
+  .recording-timer {
+    color: white;
+    font-weight: bold;
+    margin-left: 10px;
+  }
+  
+  /* أنيميشن */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(220, 53, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+  }
+  
+  /* رسائل الخطأ */
+  .error-message {
+    color: #dc3545;
+    font-size: 0.9em;
+    margin-top: -15px;
+    margin-bottom: 10px;
+    text-align: right;
+    display: none;
+  }
+  
+  /* حالة التحميل */
+  .loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 10px;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  /* قائمة المستخدمين المتصلين */
+  .online-users {
+    background: rgba(245, 247, 250, 0.9);
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .online-users-title {
+    font-weight: bold;
+    color: #2a5298;
+    margin-right: 5px;
+  }
+  
+  .user-badge {
+    display: flex;
+    align-items: center;
+    background: #e3f2fd;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    gap: 5px;
+  }
+  
+  .user-badge-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #2a5298;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7em;
+    font-weight: bold;
+  }
+  
+  .typing-indicator {
+    font-style: italic;
+    color: #666;
+    font-size: 0.9em;
+    margin-top: 5px;
+    padding: 0 15px;
+  }
+</style>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<!-- شاشة تسجيل الدخول -->
+<div class="login-container" id="loginContainer">
+  <div id="loginBox">
+    <h2>الدخول إلى الشات</h2>
+    <input type="text" id="username" placeholder="ادخل اسم المستخدم" />
+    <div id="usernameError" class="error-message">يجب إدخال اسم مستخدم صحيح</div>
+    
+    <button id="loginBtn">دخول</button>
+  </div>
+</div>
+
+<!-- نافذة إهداء النقاط -->
+<div id="giftPointsModal" class="modal">
+  <div class="modal-content">
+    <h3>إهداء نقاط إلى: <span id="giftToUsername" style="color:#2a5298;"></span></h3>
+    <input type="number" id="giftPointsAmount" min="1" max="9000000000" value="100" 
+           placeholder="عدد النقاط من 1 إلى 9,000,000,000" class="modal-input" />
+    <div class="modal-buttons">
+      <button class="modal-btn cancel-btn" id="cancelGift">إلغاء</button>
+      <button class="modal-btn confirm-btn" id="confirmGift">إهداء</button>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة بوت اليوتيوب -->
+<div id="botModal" class="modal">
+  <div class="modal-content">
+    <h3>تشغيل أغنية من اليوتيوب</h3>
+    <input type="text" id="youtubeInput" placeholder="أدخل رابط أغنية يوتيوب" class="modal-input" />
+    <iframe class="youtube-frame" id="youtubeFrame" src="" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen></iframe>
+    <div class="modal-buttons">
+      <button class="modal-btn cancel-btn" id="cancelBot">إلغاء</button>
+      <button class="modal-btn confirm-btn" id="playSong">تشغيل</button>
+    </div>
+  </div>
+</div>
+
+<!-- مؤشر التسجيل -->
+<div class="recording-indicator" id="recordingIndicator">
+  <span>●</span> جاري التسجيل... 
+  <span class="recording-timer" id="recordingTimer">0:00</span>
+</div>
+
+<!-- واجهة الشات -->
+<div id="chatContainer">
+  <div class="chat-header">
+    <div style="display:flex; align-items:center; gap:15px;">
+      <span id="userNameDisplay">
+        <span class="user-icon" id="userIcon">U</span>
+        اسم المستخدم: 
+      </span>
+      <button id="pointsBtn" class="header-btn">
+        <span>💎</span> نقاطي
+      </button>
+    </div>
+    <div id="headerButtons" style="display:flex; align-items:center; gap:10px;">
+      <button id="bgBtn" class="header-btn" title="تغيير الخلفية">
+        <span>🎨</span> خلفية
+      </button>
+      <button id="botBtn" class="header-btn" title="تشغيل أغنية">
+        <span>🎵</span> بوت
+      </button>
+      <button id="deleteBtn" class="header-btn" title="مسح الرسائل">
+        <span>🧹</span> مسح
+      </button>
+      <button id="logoutBtn" class="header-btn">
+        <span>🚪</span> تسجيل خروج
+      </button>
+    </div>
+  </div>
+  
+  <!-- قائمة المستخدمين المتصلين -->
+  <div class="online-users" id="onlineUsers">
+    <span class="online-users-title">المستخدمون المتصلون:</span>
+    <!-- سيتم ملئها ديناميكياً -->
+  </div>
+  
+  <div class="messages" id="messages"></div>
+  
+  <!-- مؤشر الكتابة -->
+  <div class="typing-indicator" id="typingIndicator"></div>
+  
+  <div class="features" style="padding:15px; background:#f9f9f9; border-top:1px solid #eee;">
+    <div style="display:flex; align-items:center; gap:10px; font-size:1.1em;">
+      <span>💎 النقاط:</span>
+      <span id="pointsDisplay" style="font-weight:bold; color:#2a5298;">0</span>
+    </div>
+    <div id="featureStatus" style="margin-top:10px; font-size:0.95em; color:#555; line-height:1.6;"></div>
+  </div>
+  <div class="input-area">
+    <input type="text" id="messageInput" placeholder="اكتب رسالتك هنا..." />
+    <button id="imageBtn" class="input-btn" title="إرسال صورة">🖼️</button>
+    <button id="voiceBtn" class="input-btn" title="إرسال رسالة صوتية">🎙️</button>
+    <button id="sendBtn" class="input-btn" title="إرسال">➤</button>
+  </div>
+</div>
+
+<!-- عناصر ملفات مخفية -->
+<input type="file" id="audioFileInput" accept="audio/*" style="display:none" />
+<input type="file" id="imageFileInput" accept="image/*" style="display:none" />
+<input type="file" id="bgImageFileInput" accept="image/*" style="display:none" />
+
+<script>
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDAMY9-F5d7wrNSRutVX9e7x7bFZXTkdL8",
+    authDomain: "same-fdf6c.firebaseapp.com",
+    projectId: "same-fdf6c",
+    storageBucket: "same-fdf6c.appspot.com",
+    messagingSenderId: "930026060406",
+    appId: "1:930026060406:web:0b48dc568d710984003d57",
+    measurementId: "G-CCFSFBJL1V"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+
+  // متغيرات الحالة
+  let username = '';
+  let points = 0;
+  let botInterval;
+  let mediaRecorder;
+  let audioChunks = [];
+  let recordingTimer;
+  let recordingSeconds = 0;
+  let isRecording = false;
+  let isTyping = false;
+  let typingTimeout = null;
+  let onlineUsers = {};
+
+  // عناصر DOM
+  const loginContainer = document.getElementById('loginContainer');
+  const chatContainer = document.getElementById('chatContainer');
+  const loginBtn = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const sendBtn = document.getElementById('sendBtn');
+  const voiceBtn = document.getElementById('voiceBtn');
+  const imageBtn = document.getElementById('imageBtn');
+  const pointsBtn = document.getElementById('pointsBtn');
+  const deleteBtn = document.getElementById('deleteBtn');
+  const bgBtn = document.getElementById('bgBtn');
+  const botBtn = document.getElementById('botBtn');
+  const audioFileInput = document.getElementById('audioFileInput');
+  const imageFileInput = document.getElementById('imageFileInput');
+  const bgImageFileInput = document.getElementById('bgImageFileInput');
+  const messagesDiv = document.getElementById('messages');
+  const pointsDisplay = document.getElementById('pointsDisplay');
+  const userNameDisplay = document.getElementById('userNameDisplay');
+  const userIcon = document.getElementById('userIcon');
+  const recordingIndicator = document.getElementById('recordingIndicator');
+  const recordingTimerElem = document.getElementById('recordingTimer');
+  const onlineUsersDiv = document.getElementById('onlineUsers');
+  const typingIndicator = document.getElementById('typingIndicator');
+
+  // عناصر رسائل الخطأ
+  const usernameError = document.getElementById('usernameError');
+
+  // النوافذ المنبثقة
+  const giftPointsModal = document.getElementById('giftPointsModal');
+  const botModal = document.getElementById('botModal');
+
+  // فرضية: اسم المستخدم للمسؤول هو "MASTER"
+  const MASTER_USERNAME='MASTER';
+
+  // أذكار دينية
+  const religiousReminders = [
+    "اللهم إني أسألك علماً نافعاً، ورزقاً طيباً، وعملاً متقبلاً",
+    "سبحان الله وبحمده، سبحان الله العظيم",
+    "اللهم إني أعوذ بك من الهم والحزن، والعجز والكسل، والبخل والجبن، وضلع الدين وغلبة الرجال",
+    "لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير",
+    "اللهم إني أسألك الجنة وما قرب إليها من قول أو عمل، وأعوذ بك من النار وما قرب إليها من قول أو عمل",
+    "اللهم اغفر لي ذنبي كله، دقه وجله، وأوله وآخره، وعلانيته وسره",
+    "اللهم إني أسألك العفو والعافية في الدنيا والآخرة",
+    "اللهم اهدني وسددني، اللهم إني أسألك الهدى والسداد",
+    "اللهم إنك عفو تحب العفو فاعف عني",
+    "اللهم إني أعوذ بك من زوال نعمتك، وتحول عافيتك، وفجاءة نقمتك، وجميع سخطك"
+  ];
+
+  // دالة للتحقق من صحة اسم المستخدم
+  function isValidUsername(username) {
+    return username.length >= 3 && username.length <= 20;
+  }
+
+  // إخفاء جميع رسائل الخطأ
+  function hideAllErrorMessages() {
+    usernameError.style.display = 'none';
+  }
+
+  // تحديث قائمة المستخدمين المتصلين
+  function updateOnlineUsers() {
+    onlineUsersDiv.innerHTML = '<span class="online-users-title">المستخدمون المتصلون:</span>';
+    
+    Object.keys(onlineUsers).forEach(user => {
+      if (user !== username && onlineUsers[user].online) {
+        const userBadge = document.createElement('div');
+        userBadge.className = 'user-badge';
+        userBadge.innerHTML = `
+          <span class="user-badge-icon">${user.charAt(0).toUpperCase()}</span>
+          <span>${user}</span>
+        `;
+        onlineUsersDiv.appendChild(userBadge);
+      }
+    });
+  }
+
+  // إرسال حالة الكتابة
+  function sendTypingStatus(isTyping) {
+    if (username) {
+      database.ref('users/' + username).update({
+        typing: isTyping
+      });
+    }
+  }
+
+  // تحديث مؤشر الكتابة
+  function updateTypingIndicator() {
+    let typingUsers = [];
+    
+    Object.keys(onlineUsers).forEach(user => {
+      if (user !== username && onlineUsers[user].typing) {
+        typingUsers.push(user);
+      }
+    });
+    
+    if (typingUsers.length > 0) {
+      if (typingUsers.length === 1) {
+        typingIndicator.textContent = `${typingUsers[0]} يكتب الآن...`;
+      } else if (typingUsers.length === 2) {
+        typingIndicator.textContent = `${typingUsers[0]} و ${typingUsers[1]} يكتبان الآن...`;
+      } else {
+        typingIndicator.textContent = 'عدة أشخاص يكتبون الآن...';
+      }
+    } else {
+      typingIndicator.textContent = '';
+    }
+  }
+
+  // تسجيل الدخول
+  async function login() {
+    hideAllErrorMessages();
+    
+    const nameInput = document.getElementById('username').value.trim();
+    
+    if (!nameInput) {
+      usernameError.textContent = 'يجب إدخال اسم المستخدم';
+      usernameError.style.display = 'block';
+      return;
+    }
+    
+    if (!isValidUsername(nameInput)) {
+      usernameError.textContent = 'يجب أن يكون اسم المستخدم من 3 إلى 20 حرفاً';
+      usernameError.style.display = 'block';
+      return;
+    }
+    
+    // التحقق من قاعدة البيانات
+    const userRef = database.ref('users/' + nameInput);
+    userRef.once('value').then(snapshot => {
+      const userData = snapshot.val();
+      
+      if (userData) {
+        // المستخدم موجود: تسجيل الدخول
+        username = nameInput;
+        points = userData.points || 0;
+        
+        // حفظ في localStorage
+        localStorage.setItem('username', username);
+        localStorage.setItem('points', points);
+        
+        // إظهار الشات
+        loginContainer.style.display = 'none';
+        chatContainer.style.display = 'flex';
+        updateUserDisplay();
+        updatePointsDisplay();
+        
+        // بدء البوت الديني
+        if (username !== MASTER_USERNAME) {
+          startReligiousBot();
+        }
+        
+        // تحديث حالة المستخدم
+        database.ref('users/' + username).update({
+          online: true,
+          typing: false,
+          lastActive: firebase.database.ServerValue.TIMESTAMP
+        });
+        
+        // استمع للتغيرات في حالة المستخدمين
+        database.ref('users').on('value', (snapshot) => {
+          onlineUsers = snapshot.val() || {};
+          updateOnlineUsers();
+          updateTypingIndicator();
+        });
+        
+        // استمع للرسائل الجديدة
+        database.ref('messages').limitToLast(100).on('child_added', (snapshot) => {
+          const message = snapshot.val();
+          if (message.sender !== username) {
+            addMessage(message.content, 'received', message.sender);
+          }
+        });
+        
+        // استمع لحذف جميع الرسائل
+        database.ref('messages').on('value', (snapshot) => {
+          if (snapshot.val() === null) {
+            messagesDiv.innerHTML = '';
+          }
+        });
+        
+        // استمع لأغنية اليوتيوب الحالية
+        database.ref('currentSong').on('value', (snapshot) => {
+          const song = snapshot.val();
+          if (song) {
+            // إذا كان هناك أغنية، نحدث إطار اليوتيوب
+            const embedUrl = `https://www.youtube.com/embed/${song.videoId}?autoplay=1`;
+            document.getElementById('youtubeFrame').src = embedUrl;
+          }
+        });
+      } else {
+        // حساب جديد: إنشاء حساب
+        username = nameInput;
+        points = 0;
+        
+        // حفظ في قاعدة البيانات
+        userRef.set({
+          points: points,
+          online: true,
+          typing: false,
+          lastActive: firebase.database.ServerValue.TIMESTAMP
+        });
+        
+        // حفظ في localStorage
+        localStorage.setItem('username', username);
+        localStorage.setItem('points', points);
+        
+        // إظهار الشات
+        loginContainer.style.display = 'none';
+        chatContainer.style.display = 'flex';
+        updateUserDisplay();
+        updatePointsDisplay();
+        
+        // بدء البوت الديني
+        if (username !== MASTER_USERNAME) {
+          startReligiousBot();
+        }
+        
+        // استمع للتغيرات في حالة المستخدمين
+        database.ref('users').on('value', (snapshot) => {
+          onlineUsers = snapshot.val() || {};
+          updateOnlineUsers();
+          updateTypingIndicator();
+        });
+        
+        // استمع للرسائل الجديدة
+        database.ref('messages').limitToLast(100).on('child_added', (snapshot) => {
+          const message = snapshot.val();
+          if (message.sender !== username) {
+            addMessage(message.content, 'received', message.sender);
+          }
+        });
+        
+        // استمع لحذف جميع الرسائل
+        database.ref('messages').on('value', (snapshot) => {
+          if (snapshot.val() === null) {
+            messagesDiv.innerHTML = '';
+          }
+        });
+        
+        // استمع لأغنية اليوتيوب الحالية
+        database.ref('currentSong').on('value', (snapshot) => {
+          const song = snapshot.val();
+          if (song) {
+            // إذا كان هناك أغنية، نحدث إطار اليوتيوب
+            const embedUrl = `https://www.youtube.com/embed/${song.videoId}?autoplay=1`;
+            document.getElementById('youtubeFrame').src = embedUrl;
+          }
+        });
+        
+        // رسالة ترحيب
+        const newMessageRef = database.ref('messages').push();
+        newMessageRef.set({
+          sender: 'النظام',
+          content: { type: 'text', data: `مرحباً بك في الشات، ${username}!` },
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+      }
+    });
+  }
+
+  // عند التحميل
+  window.onload = async () => {
+    hideAllErrorMessages();
+    
+    // التحقق من وجود مستخدم مسجل في localStorage
+    const savedUsername = localStorage.getItem('username');
+    const savedPoints = localStorage.getItem('points');
+    
+    if (savedUsername) {
+      // تسجيل الدخول تلقائي
+      username = savedUsername;
+      points = parseInt(savedPoints) || 0;
+      
+      loginContainer.style.display = 'none';
+      chatContainer.style.display = 'flex';
+      updateUserDisplay();
+      updatePointsDisplay();
+      
+      // بدء البوت الديني
+      if (username !== MASTER_USERNAME) {
+        startReligiousBot();
+      }
+      
+      // تحديث حالة المستخدم
+      database.ref('users/' + username).update({
+        online: true,
+        typing: false,
+        lastActive: firebase.database.ServerValue.TIMESTAMP
+      });
+      
+      // استمع للتغيرات في حالة المستخدمين
+      database.ref('users').on('value', (snapshot) => {
+        onlineUsers = snapshot.val() || {};
+        updateOnlineUsers();
+        updateTypingIndicator();
+      });
+      
+      // استمع للرسائل الجديدة
+      database.ref('messages').limitToLast(100).on('child_added', (snapshot) => {
+        const message = snapshot.val();
+        if (message.sender !== username) {
+          addMessage(message.content, 'received', message.sender);
+        }
+      });
+      
+      // استمع لحذف جميع الرسائل
+      database.ref('messages').on('value', (snapshot) => {
+        if (snapshot.val() === null) {
+          messagesDiv.innerHTML = '';
+        }
+      });
+      
+      // استمع لأغنية اليوتيوب الحالية
+      database.ref('currentSong').on('value', (snapshot) => {
+        const song = snapshot.val();
+        if (song) {
+          // إذا كان هناك أغنية، نحدث إطار اليوتيوب
+          const embedUrl = `https://www.youtube.com/embed/${song.videoId}?autoplay=1`;
+          document.getElementById('youtubeFrame').src = embedUrl;
+        }
+      });
+    } else {
+      // لا يوجد مستخدم مسجل: إظهار شاشة الدخول
+      loginContainer.style.display = 'flex';
+    }
+    
+    // استعادة خلفية الصفحة
+    const savedBg = localStorage.getItem('chatBackground');
+    if (savedBg) {
+      document.body.style.backgroundImage = `url(${savedBg})`;
+      document.body.style.backgroundSize = 'cover';
+    }
+  };
+
+  // تحديث عرض المستخدم
+  function updateUserDisplay() {
+    userNameDisplay.textContent = `اسم المستخدم: ${username}`;
+    userIcon.textContent = username.charAt(0).toUpperCase();
+    
+    // إظهار زر المسح فقط للمسؤول
+    if (username === MASTER_USERNAME) {
+      deleteBtn.style.display = 'flex';
+    } else {
+      deleteBtn.style.display = 'none';
+    }
+  }
+
+  // تسجيل الخروج
+  logoutBtn.onclick = () => {
+    // إيقاف البوت الديني
+    if (botInterval) {
+      clearInterval(botInterval);
+    }
+    
+    // إيقاف التسجيل إذا كان جارياً
+    if (isRecording) {
+      stopRecording();
+    }
+    
+    // تحديث حالة المستخدم
+    if (username) {
+      database.ref('users/' + username).update({
+        online: false,
+        typing: false,
+        lastActive: firebase.database.ServerValue.TIMESTAMP
+      });
+    }
+    
+    // إزالة المستمعين
+    database.ref('users').off();
+    database.ref('messages').off();
+    database.ref('currentSong').off();
+    
+    // حذف بيانات الجلسة
+    localStorage.removeItem('username');
+    localStorage.removeItem('points');
+    
+    // إعادة تعيين المتغيرات
+    username = '';
+    points = 0;
+    document.getElementById('username').value = '';
+    loginContainer.style.display = 'flex';
+    chatContainer.style.display = 'none';
+  };
+
+  // إرسال رسالة نصية
+  function sendMessage() {
+    const text = document.getElementById('messageInput').value.trim();
+    if (text !== '') {
+      // إرسال الرسالة إلى قاعدة البيانات
+      const newMessageRef = database.ref('messages').push();
+      newMessageRef.set({
+        sender: username,
+        content: { type: 'text', data: text },
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      });
+      
+      // إظهار الرسالة فوراً للمستخدم الحالي
+      addMessage({ type: 'text', data: text }, 'sent', username);
+      
+      document.getElementById('messageInput').value = '';
+      
+      // إيقاف مؤشر الكتابة
+      isTyping = false;
+      sendTypingStatus(false);
+      
+      // زيادة النقاط
+      if (username !== MASTER_USERNAME) {
+        increasePoints(1);
+      }
+    }
+  }
+
+  sendBtn.onclick = sendMessage;
+  
+  // التعامل مع الكتابة في حقل الرسالة
+  document.getElementById('messageInput').addEventListener('input', () => {
+    if (!isTyping) {
+      isTyping = true;
+      sendTypingStatus(true);
+    }
+    
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+      isTyping = false;
+      sendTypingStatus(false);
+    }, 3000);
+  });
+  
+  document.getElementById('messageInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // إضافة رسالة للدردشة
+  function addMessage(content, type, sender) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `message ${type === 'sent' ? 'sent' : 'received'}`;
+    
+    // إضافة كلاس للرسائل الدينية
+    if (sender === 'البوت الديني') {
+      msgDiv.classList.add('bot-message');
+    }
+
+    const senderSpan = document.createElement('div');
+    senderSpan.className = 'sender-name';
+    
+    // أيقونة المرسل
+    const senderIcon = document.createElement('span');
+    senderIcon.className = 'sender-icon';
+    senderIcon.textContent = sender.charAt(0).toUpperCase();
+    
+    senderSpan.appendChild(senderIcon);
+    senderSpan.appendChild(document.createTextNode(sender));
+    
+    // إذا كان المستخدم الحالي هو MASTER وأسم المرسل ليس MASTER
+    if (username === MASTER_USERNAME && sender !== MASTER_USERNAME && sender !== 'البوت الديني') {
+      senderSpan.classList.add('clickable');
+      senderSpan.dataset.username = sender;
+    }
+
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+
+    if (content.type === 'text') {
+      const textSpan = document.createElement('div');
+      textSpan.className = 'message-text';
+      textSpan.textContent = content.data;
+      
+      // تغيير لون النص عند الوصول لـ 500 نقطة
+      if (points >= 500 && sender !== 'MASTER') {
+        textSpan.style.color = '#d32f2f';
+        textSpan.style.fontWeight = 'bold';
+      }
+      
+      contentDiv.appendChild(textSpan);
+    } else if (content.type === 'image') {
+      const img = document.createElement('img');
+      img.src = content.data;
+      img.style.maxWidth = '250px';
+      img.style.borderRadius = '10px';
+      contentDiv.appendChild(img);
+    } else if (content.type === 'audio') {
+      const audio = document.createElement('audio');
+      audio.controls = true;
+      audio.src = content.data;
+      audio.className = 'audio-message';
+      audio.controlsList = 'nodownload';
+      contentDiv.appendChild(audio);
+    }
+
+    msgDiv.appendChild(senderSpan);
+    msgDiv.appendChild(contentDiv);
+    messagesDiv.appendChild(msgDiv);
+    
+    // التمرير للأسفل
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  // زيادة النقاط
+  function increasePoints(amount) {
+    points += amount;
+    if (points > 1000000000) points = 1000000000;
+    updatePointsDisplay();
+
+    // تحديث في قاعدة البيانات
+    if (username && username !== MASTER_USERNAME) {
+      database.ref('users/' + username).update({
+        points: points
+      });
+    }
+
+    // تحديث في localStorage
+    localStorage.setItem('points', points);
+
+    // إشعارات الميزات
+    if (points >= 2000 && points - amount < 2000) {
+      alert('تهانينا! يمكنك الآن إرسال رسائل صوتية مدتها دقيقة كاملة.');
+    }
+    if (points >= 10000 && points - amount < 10000) {
+      alert('تهانينا! يمكنك الآن إرسال صور حقيقية.');
+    }
+  }
+
+  // تحديث عرض النقاط
+  function updatePointsDisplay() {
+    pointsDisplay.textContent = points;
+    checkFeatures();
+  }
+
+  // التحقق من الميزات المتاحة
+  function checkFeatures() {
+    const featureStatus = document.getElementById('featureStatus');
+    featureStatus.innerHTML = '';
+    
+    if (points >= 500) {
+      featureStatus.innerHTML += '<p>✅ تغيير لون النص عند الوصول إلى 500 نقطة!</p>';
+    }
+    if (points >= 2000) {
+      featureStatus.innerHTML += '<p>✅ إرسال رسائل صوتية لمدة دقيقة كاملة!</p>';
+    }
+    if (points >= 10000) {
+      featureStatus.innerHTML += '<p>✅ إرسال صور حقيقية على الشات!</p>';
+    }
+  }
+
+  // عرض النقاط
+  pointsBtn.onclick = () => {
+    alert(`نقاطك الحالية: ${points}`);
+  };
+
+  // إرسال صورة
+  imageBtn.onclick = () => {
+    if (points >= 10000 || username === MASTER_USERNAME) {
+      imageFileInput.click();
+    } else {
+      alert('تحتاج إلى 10000 نقطة لإرسال صورة.');
+    }
+  };
+
+  // عند اختيار صورة
+  imageFileInput.onchange = () => {
+    const file = imageFileInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        // إرسال الصورة إلى قاعدة البيانات
+        const newMessageRef = database.ref('messages').push();
+        newMessageRef.set({
+          sender: username,
+          content: { type: 'image', data: reader.result },
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+        
+        // إظهار الصورة فوراً للمستخدم الحالي
+        addMessage({ type: 'image', data: reader.result }, 'sent', username);
+        
+        if (username !== MASTER_USERNAME) {
+          increasePoints(1);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // بدء التسجيل الصوتي
+  function startRecording() {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        
+        mediaRecorder.ondataavailable = event => {
+          audioChunks.push(event.data);
+        };
+        
+        mediaRecorder.onstop = () => {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          const reader = new FileReader();
+          reader.onload = () => {
+            // إرسال الرسالة الصوتية إلى قاعدة البيانات
+            const newMessageRef = database.ref('messages').push();
+            newMessageRef.set({
+              sender: username,
+              content: { type: 'audio', data: reader.result },
+              timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            
+            // إظهار الرسالة الصوتية فوراً للمستخدم الحالي
+            addMessage('رسالة صوتية', 'sent', username);
+            addMessage({ type: 'audio', data: reader.result }, 'sent', username);
+            
+            if (username !== MASTER_USERNAME) {
+              increasePoints(1);
+            }
+          };
+          reader.readAsDataURL(audioBlob);
+          
+          // إيقاف الميكروفون
+          stream.getTracks().forEach(track => track.stop());
+        };
+        
+        mediaRecorder.start();
+        isRecording = true;
+        recordingSeconds = 0;
+        recordingIndicator.style.display = 'block';
+        voiceBtn.innerHTML = '⏹️';
+        
+        // بدء المؤقت
+        recordingTimer = setInterval(() => {
+          recordingSeconds++;
+          const minutes = Math.floor(recordingSeconds / 60);
+          const seconds = recordingSeconds % 60;
+          recordingTimerElem.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+          
+          // إيقاف عند 60 ثانية
+          if (recordingSeconds >= 60) {
+            stopRecording();
+          }
+        }, 1000);
+      })
+      .catch(err => {
+        console.error('خطأ في الوصول للميكروفون:', err);
+        alert('لا يمكن الوصول إلى الميكروفون. يرجى التحقق من الأذونات.');
+      });
+  }
+
+  // إيقاف التسجيل الصوتي
+  function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+      isRecording = false;
+      clearInterval(recordingTimer);
+      recordingIndicator.style.display = 'none';
+      voiceBtn.innerHTML = '🎙️';
+    }
+  }
+
+  // زر التسجيل الصوتي
+  voiceBtn.onclick = () => {
+    if (points < 2000 && username !== MASTER_USERNAME) {
+      alert('تحتاج إلى 2000 نقطة لإرسال رسالة صوتية.');
+      return;
+    }
+    
+    if (!isRecording) {
+      startRecording();
+    } else {
+      stopRecording();
+    }
+  };
+
+  // مسح الرسائل (فقط للمسؤول)
+  deleteBtn.onclick = () => { 
+    if (username === MASTER_USERNAME) {
+      // حذف جميع الرسائل من قاعدة البيانات
+      database.ref('messages').remove()
+        .then(() => {
+          alert('تم مسح جميع الرسائل بنجاح');
+        })
+        .catch(error => {
+          alert('فشل مسح الرسائل');
+        });
+    }
+  };
+
+  // زر تغيير الخلفية (للمسؤول فقط)
+  bgBtn.onclick = () => {
+    if (username === MASTER_USERNAME) {
+      bgImageFileInput.click();
+    }
+  };
+
+  // عند اختيار صورة خلفية
+  bgImageFileInput.onchange = () => {
+    const file = bgImageFileInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const imageUrl = reader.result;
+        
+        // تعيين الخلفية
+        document.body.style.backgroundImage = `url(${imageUrl})`;
+        document.body.style.backgroundSize = 'cover';
+        
+        // حفظ في التخزين المحلي
+        localStorage.setItem('chatBackground', imageUrl);
+        
+        alert('تم تغيير خلفية الشات بنجاح!');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // زر بوت اليوتيوب (للمسؤول فقط)
+  botBtn.onclick = () => {
+    if (username === MASTER_USERNAME) {
+      document.getElementById('youtubeInput').value = '';
+      document.getElementById('youtubeFrame').src = '';
+      botModal.style.display = 'flex';
+    }
+  };
+
+  // تشغيل أغنية من اليوتيوب
+  document.getElementById('playSong').onclick = () => {
+    const youtubeLink = document.getElementById('youtubeInput').value.trim();
+    if (youtubeLink) {
+      // استخراج معرف الفيديو
+      let videoId = '';
+      if (youtubeLink.includes('youtube.com/watch?v=')) {
+        videoId = youtubeLink.split('v=')[1].split('&')[0];
+      } else if (youtubeLink.includes('youtu.be/')) {
+        videoId = youtubeLink.split('youtu.be/')[1].split('?')[0];
+      }
+      
+      if (videoId) {
+        // تحديث إطار اليوتيوب للمستخدم الحالي
+        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+        document.getElementById('youtubeFrame').src = embedUrl;
+
+        // إرسال رسالة بالأغنية
+        const newMessageRef = database.ref('messages').push();
+        newMessageRef.set({
+          sender: 'بوت الموسيقى',
+          content: { type: 'text', data: `أغنية جديدة: ${youtubeLink}` },
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+
+        // حفظ الأغنية الحالية في مسار خاص
+        database.ref('currentSong').set({
+          videoId: videoId,
+          url: youtubeLink
+        });
+      } else {
+        alert('الرجاء إدخال رابط يوتيوب صحيح');
+      }
+    } else {
+      alert('الرجاء إدخال رابط أغنية يوتيوب');
+    }
+  };
+
+  // إلغاء نافذة البوت
+  document.getElementById('cancelBot').onclick = () => {
+    botModal.style.display = 'none';
+  };
+
+  // إلغاء نافذة الإهداء
+  document.getElementById('cancelGift').onclick = () => {
+    giftPointsModal.style.display = 'none';
+  };
+
+  // بدء البوت الديني
+  function startReligiousBot() {
+    // إرسال ذكر فوري
+    setTimeout(() => {
+      const randomReminder = religiousReminders[Math.floor(Math.random() * religiousReminders.length)];
+      const newMessageRef = database.ref('messages').push();
+      newMessageRef.set({
+        sender: 'البوت الديني',
+        content: { type: 'text', data: randomReminder },
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      });
+    }, 3000);
+    
+    // إرسال ذكر كل 10 دقائق
+    botInterval = setInterval(() => {
+      const randomReminder = religiousReminders[Math.floor(Math.random() * religiousReminders.length)];
+      const newMessageRef = database.ref('messages').push();
+      newMessageRef.set({
+        sender: 'البوت الديني',
+        content: { type: 'text', data: randomReminder },
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      });
+    }, 10 * 60 * 1000); // 10 دقائق
+  }
+
+  // إهداء النقاط للمسؤول
+  messagesDiv.addEventListener('click', (e) => {
+    if (username === MASTER_USERNAME && e.target.classList.contains('clickable')) {
+      const targetUser = e.target.dataset.username;
+      if (targetUser && targetUser !== MASTER_USERNAME) {
+        document.getElementById('giftToUsername').textContent = targetUser;
+        document.getElementById('giftPointsAmount').value = '100';
+        giftPointsModal.style.display = 'flex';
+        giftPointsModal.dataset.targetUser = targetUser;
+      }
+    }
+  });
+
+  // تأكيد إهداء النقاط
+  document.getElementById('confirmGift').onclick = () => {
+    const targetUser = giftPointsModal.dataset.targetUser;
+    const pointsAmount = parseInt(document.getElementById('giftPointsAmount').value);
+    
+    if (pointsAmount > 0 && pointsAmount <= 9000000000) {
+      // تحديث النقاط في قاعدة البيانات
+      const userRef = database.ref('users/' + targetUser);
+      userRef.once('value').then(snapshot => {
+        const userData = snapshot.val();
+        if (userData) {
+          const newPoints = (userData.points || 0) + pointsAmount;
+          userRef.update({
+            points: newPoints
+          });
+          
+          alert(`تم إهداء ${pointsAmount} نقطة إلى ${targetUser} بنجاح!`);
+          
+          // تحديث واجهة المستخدم إذا كان المستخدم الحالي هو الهدف
+          if (username === targetUser) {
+            points = newPoints;
+            updatePointsDisplay();
+          }
+        } else {
+          alert('المستخدم غير موجود!');
+        }
+      });
+      
+      giftPointsModal.style.display = 'none';
+    } else {
+      alert('الرجاء إدخال عدد صحيح من 1 إلى 9,000,000,000');
+    }
+  };
+  
+  // زر الدخول
+  loginBtn.onclick = login;
+  
+  // تحديث حالة المستخدم عند إغلاق الصفحة
+  window.addEventListener('beforeunload', () => {
+    if (username) {
+      database.ref('users/' + username).update({
+        online: false,
+        typing: false,
+        lastActive: firebase.database.ServerValue.TIMESTAMP
+      });
+    }
+  });
+</script>
+
+</body>
+</html>
