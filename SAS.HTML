@@ -1,0 +1,2140 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>شات مع تسجيل دخول</title>
+    <style>
+        body {
+            font-family: "Cairo", sans-serif;
+            margin: 0;
+            background: #f2f2f2;
+        }
+        .topbar {
+            background: #333;
+            color: #fff;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            direction: rtl;
+        }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .topbar-center {
+            flex: 1;
+            text-align: center;
+        }
+        .gold {
+            font-weight: bold;
+            color: gold;
+        }
+        .shop-btn {
+            background: #FFD700;
+            color: #222;
+            border: none;
+            border-radius: 5px;
+            padding: 7px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 7px;
+        }
+        .logout-btn {
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            padding: 7px 20px;
+            cursor: pointer;
+        }
+        .delete-btn {
+            background: #b70000;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            padding: 7px 20px;
+            cursor: pointer;
+            margin-left: 7px;
+        }
+        .banned-btn {
+            background: #8b0000;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            padding: 7px 20px;
+            cursor: pointer;
+            margin-left: 7px;
+        }
+        #shopModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .shop-content {
+            background: #fff;
+            border-radius: 8px;
+            padding: 25px;
+            min-width: 300px;
+            text-align: center;
+        }
+        .color-option, .mic-option, .image-option, .inputbg-option, .chatbg-option {
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 17px;
+            transition: box-shadow 0.3s;
+        }
+        .color-red { background: #ffdddd; color: #b00; }
+        .color-blue { background: linear-gradient(90deg, #85f0ff, #398fff); color: #024e7c; font-weight: bold; }
+        .color-orange { background: linear-gradient(90deg, #ffd580, #ff914d); color: #b35a00; font-weight: bold; }
+        .color-blueblack {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(-45deg, #232949, #0c1831 50%, #353957 100%);
+            color: #38bdf8;
+            font-weight: bold;
+            font-style: italic;
+        }
+        .color-blueblack .shine {
+            position: absolute;
+            top: 0; left: -75%;
+            width: 50%; height: 100%;
+            background: linear-gradient(120deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.25) 60%, rgba(255,255,255,0.05) 100%);
+            transform: skewX(-20deg);
+            animation: shineMove 2.7s linear infinite;
+        }
+        .mic-option {
+            background: #e2e2ff;
+            border: 2px dashed #5252ed;
+            color: #24247a;
+            font-weight: bold;
+        }
+        .image-option {
+            background: #fffbf0;
+            border: 2px dashed #f8b700;
+            color: #b07900;
+            font-weight: bold;
+        }
+        .inputbg-option {
+            background: #ccf8e0;
+            border: 2px dashed #14b37d;
+            color: #10614c;
+            font-weight: bold;
+        }
+        .chatbg-option {
+            background: #fff3cc;
+            border: 2px dashed #f5b63d;
+            color: #bd6d09;
+            font-weight: bold;
+        }
+        .mic-active { background: #e7ffe7 !important; border: 2px solid #12a312 !important; }
+        .image-active { background: #e7ffe7 !important; border: 2px solid #12a312 !important; }
+        .inputbg-active { background: #e7ffe7 !important; border: 2px solid #12a312 !important; }
+        .chatbg-active { background: #e7ffe7 !important; border: 2px solid #12a312 !important; }
+        @keyframes shineMove {
+            0% { left: -75%; }
+            100% { left: 120%; }
+        }
+        .buy-btn {
+            background: #222;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 4px 15px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        /* خلفية صندوق الدردشة وخلفية الكتابة */
+        #chatBox {
+            height: 340px;
+            background: #fff;
+            margin: 30px auto 0 auto;
+            max-width: 480px;
+            border-radius: 10px;
+            overflow-y: auto;
+            box-shadow: 0 2px 8px #ccc;
+            padding: 20px;
+            direction: rtl;
+            position: relative;
+            transition: background 0.3s;
+        }
+        #chatBox.bgimg {
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+        }
+        #chatBox.bgimg-anim {
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+        }
+        .msg {
+            margin: 12px 0;
+            padding: 10px 15px;
+            border-radius: 7px;
+            background: #eee;
+            display: inline-block;
+            max-width: 80%;
+            font-size: 17px;
+            clear: both;
+            position: relative;
+        }
+        .msg.user {
+            background: #dbeafe;
+            margin-right: 0;
+            float: right;
+        }
+        .msg.user.blueblack {
+            position: relative;
+            background: linear-gradient(-45deg, #232949, #0c1831 50%, #353957 100%);
+            color: #38bdf8;
+            font-weight: bold;
+            font-style: italic;
+            overflow: hidden;
+        }
+        .msg.user.blueblack .shine {
+            position: absolute;
+            top: 0; left: -60%;
+            width: 50%; height: 100%;
+            background: linear-gradient(120deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.23) 60%, rgba(255,255,255,0.05) 100%);
+            transform: skewX(-20deg);
+            pointer-events: none;
+            animation: shineMove 2.7s linear infinite;
+        }
+        .msg.audio-msg {
+            background: #f2ffe6;
+            direction: ltr;
+            text-align: left;
+        }
+        .audio-meta {
+            font-size: 12px;
+            color: #666;
+            margin-top: 3px;
+        }
+        .audio-player {
+            width: 160px !important;
+        }
+        .msg-img {
+            display: block;
+            max-width: 70px;
+            max-height: 70px;
+            cursor: pointer;
+            border-radius: 6px;
+            box-shadow: 0 1px 4px #bbb;
+            margin-top: 7px;
+        }
+        .img-fullview-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 6000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .img-fullview-box {
+            background: #fff;
+            border-radius: 10px;
+            padding: 10px;
+            max-width: 98vw;
+            max-height: 98vh;
+            box-shadow: 0 1px 12px #bbb;
+            position: relative;
+        }
+        .img-fullview {
+            max-width: 92vw;
+            max-height: 80vh;
+            display: block;
+            margin: 0 auto;
+        }
+        .img-fullview-close {
+            position: absolute;
+            left: 7px;
+            top: 7px;
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            font-size: 19px;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .user-meta {
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 12px;
+            color: #357;
+            cursor: pointer;
+            font-weight: bold;
+            vertical-align: middle;
+            border-radius: 5px;
+            padding: 1px 4px 1px 4px;
+            transition: background 0.2s;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .user-meta.master {
+            background: #ffd700;
+            color: #111;
+            border: 1.5px solid #c7b200;
+        }
+        .user-meta:hover {
+            background: #e0e0e0;
+        }
+        .gift-popup {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.25);
+            z-index: 4000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .gift-box {
+            background: #fff;
+            border-radius: 10px;
+            min-width: 285px;
+            text-align: center;
+            padding: 25px 15px 22px 15px;
+            box-shadow: 0 1px 12px #bbb;
+        }
+        .gift-box input {
+            width: 70%;
+            margin: 8px 0;
+            padding: 7px;
+            font-size: 17px;
+            border: 1px solid #bbb;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .gift-btn {
+            background: #398fff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 17px;
+            padding: 7px 18px;
+            cursor: pointer;
+            margin: 7px 3px;
+        }
+        .gift-cancel {
+            background: #bbb;
+        }
+        .owned-color {
+            font-size: 12px;
+            color: #12a312;
+            margin-right: 8px;
+        }
+        .mic-owned, .image-owned, .inputbg-owned, .chatbg-owned {
+            font-size: 12px;
+            color: #12a312;
+            margin-right: 8px;
+        }
+        .active-color {
+            background: #e7ffe7 !important;
+            border: 2px solid #12a312 !important;
+        }
+        .chat-controls {
+            max-width: 480px;
+            margin: 0 auto;
+            display: flex;
+            padding: 15px 0;
+            gap: 6px;
+        }
+        #msgInput {
+            flex: 1;
+            font-size: 17px;
+            border: 1px solid #bbb;
+            border-radius: 6px;
+            padding: 7px;
+            transition: background 0.3s;
+        }
+        #msgInput.bgimg {
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            color: #222;
+        }
+        #sendBtn {
+            background: #398fff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            padding: 7px 18px;
+            cursor: pointer;
+        }
+        #micBtn {
+            background: #5252ed;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-right: 7px;
+            outline: none;
+            transition: background 0.2s;
+        }
+        #micBtn[disabled] {
+            background: #bdbdbd;
+            cursor: not-allowed;
+        }
+        #micBtn.recording {
+            background: #e74c3c;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 #e74c3c77;}
+            70% { box-shadow: 0 0 0 12px #e74c3c11;}
+            100% { box-shadow: 0 0 0 0 #e74c3c77;}
+        }
+        #imageBtn {
+            background: #f8b700;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-right: 7px;
+            outline: none;
+            transition: background 0.2s;
+        }
+        #imageBtn[disabled] {
+            background: #bdbdbd;
+            cursor: not-allowed;
+        }
+        #imageBtn.image-active {
+            border: 2px solid #12a312;
+            background: #ffe58f;
+            color: #b07900;
+        }
+        /* Login/Register Overlay */
+        #loginOverlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-box {
+            background: #fff;
+            padding: 30px 25px;
+            border-radius: 10px;
+            min-width: 290px;
+            box-shadow: 0 2px 8px #bbb;
+            text-align: center;
+        }
+        .login-box input {
+            width: 90%;
+            margin: 8px 0;
+            padding: 7px;
+            font-size: 17px;
+            border: 1px solid #bbb;
+            border-radius: 5px;
+            text-align: right;
+        }
+        .login-btn, .register-btn, .logout-btn {
+            background: #398fff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 17px;
+            padding: 7px 18px;
+            cursor: pointer;
+            margin: 7px 3px;
+        }
+        .register-btn {
+            background: #FFD700;
+            color: #222;
+        }
+        .logout-btn {
+            background: #e74c3c;
+            color: #fff;
+        }
+        .login-error {
+            color: #c00;
+            margin-top: 10px;
+            font-size: 15px;
+        }
+        /* قائمة MASTER */
+        .user-actions-menu {
+            position: fixed;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 5000;
+            padding: 10px;
+            min-width: 180px;
+            display: none;
+        }
+        .user-actions-menu button {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            margin: 5px 0;
+            text-align: right;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .user-actions-menu button:hover {
+            background: #f0f0f0;
+        }
+        .ban-btn {
+            color: #c00;
+        }
+        .mute-btn {
+            color: #e67e22;
+        }
+        /* نوافذ الحظر والإيقاف */
+        .ban-options, .mute-options {
+            position: fixed;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 5001;
+            padding: 15px;
+            width: 250px;
+            display: none;
+            text-align: center;
+        }
+        .ban-options h3, .mute-options h3 {
+            margin-top: 0;
+            color: #c00;
+        }
+        .mute-options h3 {
+            color: #e67e22;
+        }
+        .ban-options button, .mute-options button {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .ban-options button {
+            background: #ffebee;
+            color: #c00;
+        }
+        .ban-options button:hover {
+            background: #ffcdd2;
+        }
+        .mute-options button {
+            background: #fff3e0;
+            color: #e67e22;
+        }
+        .mute-options button:hover {
+            background: #ffe0b2;
+        }
+        .cancel-btn {
+            background: #f5f5f5 !important;
+            color: #333 !important;
+            margin-top: 10px !important;
+        }
+        /* نافذة المحظورين */
+        .banned-users-window {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.3);
+            z-index: 5002;
+            width: 350px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 20px;
+            display: none;
+        }
+        .banned-users-window h2 {
+            margin-top: 0;
+            text-align: center;
+            color: #c00;
+        }
+        .banned-user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .banned-user-info {
+            flex: 1;
+        }
+        .banned-user-name {
+            font-weight: bold;
+        }
+        .banned-user-type {
+            font-size: 12px;
+            color: #666;
+        }
+        .banned-user-time {
+            font-size: 12px;
+            color: #888;
+        }
+        .unban-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .close-banned-window {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+    </style>
+    <!-- إضافة Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+    <!-- Gift popup -->
+    <div id="giftPopup" class="gift-popup" style="display:none;">
+        <div class="gift-box">
+            <h2>إهداء نقاط</h2>
+            <div id="giftToLabel"></div>
+            <input type="number" id="giftAmount" min="500" max="1000" step="100" value="500">
+            <div style="margin:10px 0 7px 0;">الرجاء إدخال رقم بين 500 و 1000</div>
+            <button class="gift-btn" onclick="confirmGift()">إرسال</button>
+            <button class="gift-btn gift-cancel" onclick="closeGiftPopup()">إلغاء</button>
+            <div id="giftError" style="color:#e00;margin-top:7px;font-size:15px;"></div>
+        </div>
+    </div>
+
+    <div id="loginOverlay">
+        <div class="login-box">
+            <h2>تسجيل الدخول إلى الشات</h2>
+            <input type="text" id="loginName" placeholder="اسم المستخدم">
+            <input type="password" id="loginPass" placeholder="كلمة المرور">
+            <div>
+                <button class="login-btn" onclick="login()">دخول</button>
+                <button class="register-btn" onclick="register()">إنشاء</button>
+            </div>
+            <div id="loginError" class="login-error"></div>
+        </div>
+    </div>
+
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="shop-btn" onclick="openShop()">المتجر</button>
+            <button class="logout-btn" onclick="logout()" id="logoutBtn" style="display:none;">خروج</button>
+            <button class="delete-btn" onclick="deleteAllChat()" id="deleteBtn" style="display:none;">حذف الكل</button>
+            <button class="banned-btn" onclick="showBannedUsers()" id="bannedBtn" style="display:none;">المحظورين</button>
+        </div>
+        <div class="topbar-center">
+            رصيدك: <span id="gold" class="gold">0</span>
+            <span style="font-size:23px;vertical-align:middle;">💰</span>
+        </div>
+        <span></span>
+    </div>
+
+    <!-- قائمة MASTER -->
+    <div id="userActionsMenu" class="user-actions-menu">
+        <button class="ban-btn" onclick="showBanOptions()">حظر المستخدم</button>
+        <button class="mute-btn" onclick="showMuteOptions()">إيقاف المستخدم</button>
+    </div>
+
+    <!-- خيارات الحظر -->
+    <div id="banOptions" class="ban-options">
+        <h3>حظر المستخدم</h3>
+        <button onclick="banUser(30)">حظر لمدة 30 دقيقة</button>
+        <button onclick="banUser(43200)">حظر لمدة 90 يوم</button>
+        <button onclick="banUser(525600)">حظر لمدة 90 سنة</button>
+        <button onclick="banUser('permanent')">حظر دائم</button>
+        <button class="cancel-btn" onclick="closeBanOptions()">إلغاء</button>
+    </div>
+
+    <!-- خيارات الإيقاف -->
+    <div id="muteOptions" class="mute-options">
+        <h3>إيقاف المستخدم</h3>
+        <button onclick="muteUser(5)">إيقاف لمدة 5 دقائق</button>
+        <button onclick="muteUser(60)">إيقاف لمدة 60 دقيقة</button>
+        <button onclick="muteUser(525600)">إيقاف لمدة 90 سنة</button>
+        <button class="cancel-btn" onclick="closeMuteOptions()">إلغاء</button>
+    </div>
+
+    <!-- نافذة المحظورين -->
+    <div id="bannedUsersWindow" class="banned-users-window">
+        <button class="close-banned-window" onclick="closeBannedUsers()">✕</button>
+        <h2>قائمة المحظورين والمتوقفين</h2>
+        <div id="bannedUsersList"></div>
+    </div>
+
+    <div id="shopModal">
+        <div class="shop-content">
+            <h2>المتجر - اختر لون الرسائل أو الميزات</h2>
+            <div id="colorRed" class="color-option color-red" onclick="selectOrBuyColor('red', 50)">
+                <span>
+                    <span id="ownedRed" class="owned-color" style="display:none;">تم الشراء</span>
+                    اللون الأحمر
+                </span>
+                <span>50 <span style="font-size:18px;vertical-align:middle;">💰</span></span>
+            </div>
+            <div id="colorBlue" class="color-option color-blue" onclick="selectOrBuyColor('blue', 60)">
+                <span>
+                    <span id="ownedBlue" class="owned-color" style="display:none;">تم الشراء</span>
+                    اللون الأزرق اللامع
+                </span>
+                <span>60 <span style="font-size:18px;vertical-align:middle;">💰</span></span>
+            </div>
+            <div id="colorOrange" class="color-option color-orange" onclick="selectOrBuyColor('orange', 100)">
+                <span>
+                    <span id="ownedOrange" class="owned-color" style="display:none;">تم الشراء</span>
+                    اللون البرتقالي اللامع
+                </span>
+                <span>100 <span style="font-size:18px;vertical-align:middle;">💰</span></span>
+            </div>
+            <div id="colorBlueBlack" class="color-option color-blueblack" onclick="selectOrBuyColor('blueblack', 500)" style="position:relative;">
+                <span style="position:relative;z-index:2;">
+                    <span id="ownedBlueBlack" class="owned-color" style="display:none;">تم الشراء</span>
+                    <span style="font-style:italic;">الأزرق المائل للأسود (لامع متحرك)</span>
+                </span>
+                <span style="position:relative;z-index:2;">500 <span style="font-size:18px;vertical-align:middle;">💰</span></span>
+                <span class="shine"></span>
+            </div>
+            <div id="micOption" class="mic-option" onclick="selectOrBuyMic(2500)">
+                <span>
+                    <span id="ownedMic" class="mic-owned" style="display:none;">تم الشراء</span>
+                    <span style="font-style:italic;">ميزة إرسال رسائل صوتية (مايكروفون)</span>
+                </span>
+                <span>2500 <span style="font-size:18px;vertical-align:middle;">💰</span></span>
+            </div>
+            <div id="imageOption" class="image-option" onclick="selectOrBuyImage(1000)">
+                <span>
+                    <span id="ownedImage" class="image-owned" style="display:none;">تم الشراء</span>
+                    <span style="font-style:italic;">ميزة إرسال الصور (غير متحركة)</span>
+                </span>
+                <span>1000 <span style="font-size:18px;vertical-align:middle;">💰</span></span>
+            </div>
+            <div id="inputBgOption" class="inputbg-option" onclick="selectOrBuyInputBg(2000)">
+                <span>
+                    <span id="ownedInputBg" class="inputbg-owned" style="display:none;">تم الشراء</span>
+                    <span style="font-style:italic;">خلفية خاصة لبوكس الكتابة (صورة ثابتة)</span>
+                </span>
+                <span>2000 <span style="font-size:18px;vertical-align:middle;">💰</span></span>
+            </div>
+            <div id="chatBgOption" class="chatbg-option" onclick="selectOrBuyChatBg(5000)">
+                <span>
+                    <span id="ownedChatBg" class="chatbg-owned" style="display:none;">تم الشراء</span>
+                    <span style="font-style:italic;">خلفية متحركة لصندوق الدردشة (GIF)</span>
+                </span>
+                <span>5000 <span style="font-size:18px;vertical-align:middle;">💰</span></span>
+            </div>
+            <button class="buy-btn" onclick="closeShop()">إغلاق</button>
+        </div>
+    </div>
+
+    <div id="chatBox"></div>
+    <div class="chat-controls">
+        <input type="text" id="msgInput" placeholder="اكتب رسالتك..." onkeydown="if(event.key==='Enter'){sendMsg()}">
+        <button id="sendBtn" onclick="sendMsg()">إرسال ⏎</button>
+        <button id="micBtn" title="اضغط لتسجيل رسالة صوتية" onclick="toggleRecording()" disabled>
+            <span id="micIcon">🎤</span>
+        </button>
+        <button id="imageBtn" title="إرسال صورة" onclick="openImagePicker()" disabled>
+            <span id="imageIcon">🖼️</span>
+        </button>
+        <input type="file" id="imageFileInput" accept="image/*" style="display:none" onchange="sendImage(event)">
+        <!-- خلفية كتابة صورة -->
+        <input type="file" id="inputBgFileInput" accept="image/*" style="display:none" onchange="setInputBgImage(event)">
+        <!-- خلفية متحركة لصندوق الدردشة -->
+        <input type="file" id="chatBgFileInput" accept="image/gif" style="display:none" onchange="setChatBgImage(event)">
+    </div>
+
+    <!-- Image Full View Modal -->
+    <div id="imgFullView" style="display:none;">
+        <div class="img-fullview-bg" onclick="closeImgFullView(event)">
+            <div class="img-fullview-box" onclick="event.stopPropagation()">
+                <button class="img-fullview-close" onclick="closeImgFullView(event)">✕</button>
+                <img id="imgFullViewImg" class="img-fullview" src="" alt="chat image">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- تهيئة Firebase ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDJcZxlglSE3uXCuz9cgJZ-rjwXK0_Ddlc",
+            authDomain: "samer-be1db.firebaseapp.com",
+            databaseURL: "https://samer-be1db-default-rtdb.firebaseio.com",
+            projectId: "samer-be1db",
+            storageBucket: "samer-be1db.appspot.com",
+            messagingSenderId: "1051619025972",
+            appId: "1:1051619025972:web:74f8a4e991ab3187695661",
+            measurementId: "G-F64TYL8ME6"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+        const storage = firebase.storage();
+
+        // --- متغيرات التطبيق ---
+        let currentUser = null;
+        let gold = 0;
+        let userColor = "";
+        let ownedColors = [];
+        let hasMic = false;
+        let hasImage = false;
+        let isMaster = false;
+        let chatLog = [];
+        let allUserNames = [];
+        // خلفية الكتابة
+        let hasInputBg = false;
+        let inputBgImg = "";
+        // خلفية الدردشة المتحركة
+        let hasChatBg = false;
+        let chatBgImg = "";
+        // نظام الحظر والإيقاف
+        let bannedUsers = {};
+        let mutedUsers = {};
+        let selectedUserForAction = null;
+
+        // --- إدارة جلسة المستخدم ---
+        function saveSession() {
+            if (currentUser) {
+                localStorage.setItem("chatCurrentUser", currentUser);
+            } else {
+                localStorage.removeItem("chatCurrentUser");
+            }
+        }
+        
+        async function loadSession() {
+            const user = auth.currentUser;
+            if (user) {
+                currentUser = user.displayName;
+                isMaster = (currentUser === "MASTER");
+                
+                // جلب بيانات المستخدم من قاعدة البيانات
+                const userRef = database.ref('users/' + currentUser);
+                const snapshot = await userRef.once('value');
+                const userData = snapshot.val();
+                
+                if (userData) {
+                    gold = userData.gold || 0;
+                    userColor = userData.color || "";
+                    ownedColors = userData.ownedColors || [];
+                    hasMic = userData.hasMic || false;
+                    hasImage = userData.hasImage || false;
+                    hasInputBg = userData.hasInputBg || false;
+                    inputBgImg = userData.inputBgImg || "";
+                    hasChatBg = userData.hasChatBg || false;
+                    chatBgImg = userData.chatBgImg || "";
+                    
+                    if (isMaster) {
+                        gold = 999999999;
+                    }
+                    
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function ensureMasterGold() {
+            if (isMaster) {
+                gold = 999999999;
+            }
+        }
+
+        function showError(msg) {
+            document.getElementById("loginError").innerText = msg;
+        }
+
+        // --- إدارة المستخدمين ---
+        async function login() {
+            const name = document.getElementById("loginName").value.trim();
+            const pass = document.getElementById("loginPass").value;
+            
+            if (!name || !pass) {
+                showError("يرجى إدخال الاسم وكلمة المرور");
+                return;
+            }
+            
+            if (/^\d+$/.test(name)) {
+                showError("لا يمكن استخدام الأرقام فقط كاسم مستخدم!");
+                return;
+            }
+            
+            try {
+                // محاولة تسجيل الدخول
+                const userCredential = await auth.signInWithEmailAndPassword(name + "@chat.com", pass);
+                currentUser = name;
+                isMaster = (name === "MASTER");
+                
+                // جلب بيانات المستخدم من قاعدة البيانات
+                const userRef = database.ref('users/' + name);
+                const snapshot = await userRef.once('value');
+                const userData = snapshot.val();
+                
+                if (userData) {
+                    gold = userData.gold || 0;
+                    userColor = userData.color || "";
+                    ownedColors = userData.ownedColors || [];
+                    hasMic = userData.hasMic || false;
+                    hasImage = userData.hasImage || false;
+                    hasInputBg = userData.hasInputBg || false;
+                    inputBgImg = userData.inputBgImg || "";
+                    hasChatBg = userData.hasChatBg || false;
+                    chatBgImg = userData.chatBgImg || "";
+                    
+                    if (isMaster) {
+                        gold = 999999999;
+                    }
+                    
+                    saveSession();
+                    document.getElementById("loginOverlay").style.display = "none";
+                    document.getElementById("logoutBtn").style.display = "inline-block";
+                    
+                    if (isMaster) {
+                        document.getElementById("deleteBtn").style.display = "inline-block";
+                        document.getElementById("bannedBtn").style.display = "inline-block";
+                    } else {
+                        document.getElementById("deleteBtn").style.display = "none";
+                        document.getElementById("bannedBtn").style.display = "none";
+                    }
+                    
+                    updateGold();
+                    showChatColor();
+                    updateShopColors();
+                    updateMicBtn();
+                    updateImageBtn();
+                    updateInputBg();
+                    updateChatBg();
+                    loadChat();
+                    
+                    // جلب بيانات المحظورين والمتوقفين
+                    loadBannedUsers();
+                    loadMutedUsers();
+                } else {
+                    showError("المستخدم غير موجود. يمكنك إنشاء حساب جديد.");
+                    await auth.signOut();
+                }
+            } catch (error) {
+                showError("خطأ في تسجيل الدخول: " + error.message);
+            }
+        }
+
+        async function register() {
+            const name = document.getElementById("loginName").value.trim();
+            const pass = document.getElementById("loginPass").value;
+            
+            if (!name || !pass) {
+                showError("يرجى إدخال الاسم وكلمة المرور");
+                return;
+            }
+            
+            if (/^\d+$/.test(name)) {
+                showError("لا يمكن استخدام الأرقام فقط كاسم مستخدم!");
+                return;
+            }
+            
+            try {
+                // التحقق من وجود المستخدم
+                const userRef = database.ref('users/' + name);
+                const snapshot = await userRef.once('value');
+                
+                if (snapshot.exists()) {
+                    showError("اسم المستخدم مستخدم من قبل شخص آخر");
+                    return;
+                }
+                
+                // إنشاء حساب جديد
+                const userCredential = await auth.createUserWithEmailAndPassword(name + "@chat.com", pass);
+                
+                // تحديث اسم العرض
+                await userCredential.user.updateProfile({
+                    displayName: name
+                });
+                
+                // حفظ بيانات المستخدم في قاعدة البيانات
+                await userRef.set({
+                    name: name,
+                    gold: 0,
+                    color: "",
+                    ownedColors: [],
+                    hasMic: false,
+                    hasImage: false,
+                    hasInputBg: false,
+                    inputBgImg: "",
+                    hasChatBg: false,
+                    chatBgImg: ""
+                });
+                
+                showError("تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.");
+            } catch (error) {
+                showError("خطأ في إنشاء الحساب: " + error.message);
+            }
+        }
+
+        async function logout() {
+            try {
+                await auth.signOut();
+                currentUser = null;
+                saveSession();
+                document.getElementById("loginOverlay").style.display = "flex";
+                document.getElementById("logoutBtn").style.display = "none";
+                document.getElementById("msgInput").disabled = true;
+                document.getElementById("sendBtn").disabled = true;
+                document.getElementById("loginName").value = "";
+                document.getElementById("loginPass").value = "";
+                document.getElementById("deleteBtn").style.display = "none";
+                document.getElementById("bannedBtn").style.display = "none";
+            } catch (error) {
+                console.error("خطأ في تسجيل الخروج:", error);
+            }
+        }
+
+        async function updateGold() {
+            ensureMasterGold();
+            document.getElementById("gold").innerText = gold;
+            
+            if (currentUser) {
+                try {
+                    await database.ref('users/' + currentUser).update({
+                        gold: gold,
+                        color: userColor,
+                        ownedColors: ownedColors,
+                        hasMic: hasMic,
+                        hasImage: hasImage,
+                        hasInputBg: hasInputBg,
+                        inputBgImg: inputBgImg,
+                        hasChatBg: hasChatBg,
+                        chatBgImg: chatBgImg
+                    });
+                    saveSession();
+                } catch (error) {
+                    console.error("خطأ في تحديث الرصيد:", error);
+                }
+            }
+        }
+
+        // --- إدارة الدردشة ---
+        function nowTime() {
+            let d = new Date();
+            return d.getHours().toString().padStart(2,"0") + ":" + d.getMinutes().toString().padStart(2,"0");
+        }
+
+        async function sendMsg() {
+            // التحقق من الإيقاف
+            if (mutedUsers[currentUser] && mutedUsers[currentUser].expiry > Date.now()) {
+                const remainingTime = mutedUsers[currentUser].expiry - Date.now();
+                const minutes = Math.floor(remainingTime / (1000 * 60));
+                alert(`أنت متوقف عن الكتابة لمدة ${minutes} دقيقة`);
+                return;
+            } else if (mutedUsers[currentUser]) {
+                // انتهت مدة الإيقاف
+                delete mutedUsers[currentUser];
+                saveMutedUsers();
+            }
+            
+            const input = document.getElementById('msgInput');
+            let txt = input.value.trim();
+            if (!txt) return;
+            input.value = "";
+            
+            const newMsg = {
+                name: currentUser,
+                msg: txt,
+                color: userColor,
+                time: nowTime(),
+                audioUrl: null,
+                audioDur: null,
+                imageUrl: null
+            };
+            
+            try {
+                // إضافة الرسالة إلى قاعدة البيانات
+                const newMsgRef = database.ref('messages').push();
+                await newMsgRef.set(newMsg);
+                
+                if (!isMaster) {
+                    gold += 90;
+                    await updateGold();
+                }
+            } catch (error) {
+                console.error("خطأ في إرسال الرسالة:", error);
+            }
+        }
+
+        function renderChat() {
+            let box = document.getElementById('chatBox');
+            box.innerHTML = "";
+            allUserNames = [];
+            
+            for (let item of chatLog) {
+                let msgDiv = document.createElement("div");
+                msgDiv.className = "msg user";
+                
+                if(item.color === 'red'){
+                    msgDiv.style.background = "#ffdddd";
+                    msgDiv.style.color = "#b00";
+                    msgDiv.style.fontWeight = "bold";
+                } else if(item.color === 'blue'){
+                    msgDiv.style.background = "linear-gradient(90deg, #aee3ff, #398fff)";
+                    msgDiv.style.color = "#024e7c";
+                    msgDiv.style.fontWeight = "bold";
+                } else if(item.color === 'orange'){
+                    msgDiv.style.background = "linear-gradient(90deg, #ffd580, #ff914d)";
+                    msgDiv.style.color = "#b35a00";
+                    msgDiv.style.fontWeight = "bold";
+                } else if(item.color === 'blueblack'){
+                    msgDiv.className += " blueblack";
+                    msgDiv.style.fontStyle = "italic";
+                    let shine = document.createElement("span");
+                    shine.className = "shine";
+                    msgDiv.appendChild(shine);
+                }
+                
+                let userMeta = document.createElement("span");
+                userMeta.className = "user-meta";
+                userMeta.innerText = item.name + " [" + item.time + "]";
+                
+                if(item.name === "MASTER") userMeta.classList.add("master");
+                
+                if(isMaster && item.name !== "MASTER") {
+                    userMeta.style.cursor = "pointer";
+                    userMeta.title = "إضغط لإظهار خيارات التحكم";
+                    userMeta.onclick = function(e) {
+                        e.stopPropagation();
+                        showUserActionsMenu(e, item.name);
+                    };
+                }
+                
+                msgDiv.appendChild(userMeta);
+
+                if (item.audioUrl) {
+                    let audio = document.createElement("audio");
+                    audio.controls = true;
+                    audio.src = item.audioUrl;
+                    audio.className = "audio-player";
+                    msgDiv.appendChild(audio);
+                    
+                    let meta = document.createElement("div");
+                    meta.className = "audio-meta";
+                    let dur = item.audioDur || 0;
+                    let min = Math.floor(dur / 60);
+                    let sec = dur % 60;
+                    meta.innerText = `مدة الصوت: ${min > 0 ? (min + " دقيقة و ") : ""}${sec} ثانية`;
+                    msgDiv.appendChild(meta);
+                } else if (item.imageUrl) {
+                    let img = document.createElement("img");
+                    img.className = "msg-img";
+                    img.src = item.imageUrl;
+                    img.alt = "صورة مرسلة";
+                    img.onclick = function() { showImgFullView(item.imageUrl); };
+                    msgDiv.appendChild(img);
+                } else {
+                    let span = document.createElement("span");
+                    span.innerText = " " + item.msg;
+                    msgDiv.appendChild(span);
+                }
+                
+                box.appendChild(msgDiv);
+                if (!allUserNames.includes(item.name)) allUserNames.push(item.name);
+            }
+            
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function loadChat() {
+            // الاستماع للتحديثات في الرسائل
+            database.ref('messages').on('value', (snapshot) => {
+                chatLog = [];
+                snapshot.forEach((childSnapshot) => {
+                    const msg = childSnapshot.val();
+                    chatLog.push(msg);
+                });
+                renderChat();
+            });
+        }
+
+        // --- نظام الهدايا ---
+        function openGiftPopup(username) {
+            document.getElementById("giftToLabel").innerText = "إهداء إلى: " + username;
+            document.getElementById("giftAmount").value = 500;
+            document.getElementById("giftError").innerText = "";
+            document.getElementById("giftPopup").style.display = "flex";
+            document.getElementById("giftPopup").dataset.username = username;
+        }
+
+        function closeGiftPopup() {
+            document.getElementById("giftPopup").style.display = "none";
+        }
+
+        async function confirmGift() {
+            let username = document.getElementById("giftPopup").dataset.username;
+            let amount = parseInt(document.getElementById("giftAmount").value);
+            
+            if (!(amount >= 500 && amount <= 1000)) {
+                document.getElementById("giftError").innerText = "يجب أن يكون الرقم بين 500 و 1000";
+                return;
+            }
+            
+            if (gold < amount && !isMaster) {
+                document.getElementById("giftError").innerText = "رصيدك غير كافي";
+                return;
+            }
+            
+            try {
+                // جلب بيانات المستخدم المستقبل
+                const userRef = database.ref('users/' + username);
+                const snapshot = await userRef.once('value');
+                
+                if (!snapshot.exists()) {
+                    document.getElementById("giftError").innerText = "المستخدم غير موجود";
+                    return;
+                }
+                
+                const userData = snapshot.val();
+                const newGold = (userData.gold || 0) + amount;
+                
+                // تحديث رصيد المستقبل
+                await userRef.update({ gold: newGold });
+                
+                // خصم المبلغ من المرسل (إذا لم يكن MASTER)
+                if (!isMaster) {
+                    gold -= amount;
+                    await updateGold();
+                }
+                
+                closeGiftPopup();
+                alert("تم إهداء " + amount + " 💰 إلى " + username + " بنجاح!");
+                
+                // إذا كان المستخدم الحالي هو المستقبل، تحديث العرض
+                if (currentUser === username) {
+                    gold = newGold;
+                    document.getElementById("gold").innerText = gold;
+                }
+            } catch (error) {
+                console.error("خطأ في إرسال الهدية:", error);
+                document.getElementById("giftError").innerText = "حدث خطأ أثناء إرسال الهدية";
+            }
+        }
+
+        // --- نظام المتجر ---
+        function openShop() {
+            updateShopColors();
+            document.getElementById('shopModal').style.display = "flex";
+        }
+
+        function closeShop() {
+            document.getElementById('shopModal').style.display = "none";
+        }
+
+        function updateShopColors() {
+            // Red
+            if (ownedColors.includes('red')) {
+                document.getElementById('ownedRed').style.display = "inline";
+                document.getElementById('colorRed').classList.remove("color-red");
+                document.getElementById('colorRed').classList.add("active-color");
+            } else {
+                document.getElementById('ownedRed').style.display = "none";
+                document.getElementById('colorRed').classList.remove("active-color");
+                document.getElementById('colorRed').classList.add("color-red");
+            }
+            // Blue
+            if (ownedColors.includes('blue')) {
+                document.getElementById('ownedBlue').style.display = "inline";
+                document.getElementById('colorBlue').classList.remove("color-blue");
+                document.getElementById('colorBlue').classList.add("active-color");
+            } else {
+                document.getElementById('ownedBlue').style.display = "none";
+                document.getElementById('colorBlue').classList.remove("active-color");
+                document.getElementById('colorBlue').classList.add("color-blue");
+            }
+            // Orange
+            if (ownedColors.includes('orange')) {
+                document.getElementById('ownedOrange').style.display = "inline";
+                document.getElementById('colorOrange').classList.remove("color-orange");
+                document.getElementById('colorOrange').classList.add("active-color");
+            } else {
+                document.getElementById('ownedOrange').style.display = "none";
+                document.getElementById('colorOrange').classList.remove("active-color");
+                document.getElementById('colorOrange').classList.add("color-orange");
+            }
+            // BlueBlack
+            if (ownedColors.includes('blueblack')) {
+                document.getElementById('ownedBlueBlack').style.display = "inline";
+                document.getElementById('colorBlueBlack').classList.remove("color-blueblack");
+                document.getElementById('colorBlueBlack').classList.add("active-color");
+            } else {
+                document.getElementById('ownedBlueBlack').style.display = "none";
+                document.getElementById('colorBlueBlack').classList.remove("active-color");
+                document.getElementById('colorBlueBlack').classList.add("color-blueblack");
+            }
+            // Mic
+            if (hasMic) {
+                document.getElementById('ownedMic').style.display = "inline";
+                document.getElementById('micOption').classList.add("mic-active");
+            } else {
+                document.getElementById('ownedMic').style.display = "none";
+                document.getElementById('micOption').classList.remove("mic-active");
+            }
+            // Image
+            if (hasImage) {
+                document.getElementById('ownedImage').style.display = "inline";
+                document.getElementById('imageOption').classList.add("image-active");
+            } else {
+                document.getElementById('ownedImage').style.display = "none";
+                document.getElementById('imageOption').classList.remove("image-active");
+            }
+            // Input Bg
+            if (hasInputBg) {
+                document.getElementById('ownedInputBg').style.display = "inline";
+                document.getElementById('inputBgOption').classList.add("inputbg-active");
+            } else {
+                document.getElementById('ownedInputBg').style.display = "none";
+                document.getElementById('inputBgOption').classList.remove("inputbg-active");
+            }
+            // Chat Bg
+            if (hasChatBg) {
+                document.getElementById('ownedChatBg').style.display = "inline";
+                document.getElementById('chatBgOption').classList.add("chatbg-active");
+            } else {
+                document.getElementById('ownedChatBg').style.display = "none";
+                document.getElementById('chatBgOption').classList.remove("chatbg-active");
+            }
+        }
+
+        async function selectOrBuyColor(color, price) {
+            if (ownedColors.includes(color)) {
+                userColor = color;
+                await updateGold();
+                updateShopColors();
+                closeShop();
+                alert("تم تفعيل اللون بنجاح! ستظهر رسائلك الآن باللون الجديد.");
+                return;
+            }
+            
+            if (gold < price && !isMaster) {
+                alert("رصيدك غير كافٍ!");
+                return;
+            }
+            
+            if (!ownedColors.includes(color)) {
+                ownedColors.push(color);
+            }
+            
+            userColor = color;
+            
+            if (!isMaster) {
+                gold -= price;
+            }
+            
+            await updateGold();
+            updateShopColors();
+            closeShop();
+            alert("تم شراء وتفعيل اللون بنجاح! ستظهر رسائلك الآن باللون الجديد.");
+        }
+
+        async function selectOrBuyMic(price) {
+            if (hasMic) {
+                alert("الميزة مفعلة لديك مسبقًا، يمكنك إرسال رسائل صوتية الان.");
+                return;
+            }
+            
+            if (gold < price && !isMaster) {
+                alert("رصيدك غير كافٍ!");
+                return;
+            }
+            
+            hasMic = true;
+            
+            if (!isMaster) {
+                gold -= price;
+            }
+            
+            await updateGold();
+            updateShopColors();
+            updateMicBtn();
+            closeShop();
+            alert("تم شراء ميزة الصوت! يمكنك الآن إرسال رسائل صوتية.");
+        }
+
+        async function selectOrBuyImage(price) {
+            if (hasImage) {
+                alert("الميزة مفعلة لديك مسبقًا، يمكنك إرسال الصور الآن.");
+                return;
+            }
+            
+            if (gold < price && !isMaster) {
+                alert("رصيدك غير كافٍ!");
+                return;
+            }
+            
+            hasImage = true;
+            
+            if (!isMaster) {
+                gold -= price;
+            }
+            
+            await updateGold();
+            updateShopColors();
+            updateImageBtn();
+            closeShop();
+            alert("تم شراء ميزة إرسال الصور! يمكنك الآن إرسال الصور إلى الدردشة.");
+        }
+
+        async function selectOrBuyInputBg(price) {
+            if (hasInputBg) {
+                // مفعلة: السماح بتغيير الصورة
+                document.getElementById('inputBgFileInput').value = "";
+                document.getElementById('inputBgFileInput').click();
+                return;
+            }
+            
+            if (gold < price && !isMaster) {
+                alert("رصيدك غير كافٍ!");
+                return;
+            }
+            
+            // شراء (ثم السماح بالاختيار)
+            hasInputBg = true;
+            
+            if (!isMaster) {
+                gold -= price;
+            }
+            
+            await updateGold();
+            updateShopColors();
+            document.getElementById('inputBgFileInput').value = "";
+            document.getElementById('inputBgFileInput').click();
+            closeShop();
+        }
+
+        async function selectOrBuyChatBg(price) {
+            if (hasChatBg) {
+                // مفعلة: السماح بتغيير الخلفية المتحركة
+                document.getElementById('chatBgFileInput').value = "";
+                document.getElementById('chatBgFileInput').click();
+                return;
+            }
+            
+            if (gold < price && !isMaster) {
+                alert("رصيدك غير كافٍ!");
+                return;
+            }
+            
+            // شراء (ثم السماح بالاختيار)
+            hasChatBg = true;
+            
+            if (!isMaster) {
+                gold -= price;
+            }
+            
+            await updateGold();
+            updateShopColors();
+            document.getElementById('chatBgFileInput').value = "";
+            document.getElementById('chatBgFileInput').click();
+            closeShop();
+        }
+
+        function showChatColor() {}
+
+        //--- إدارة الصوت ---
+        let isRecording = false;
+        let mediaRecorder;
+        let audioChunks = [];
+        let maxDuration = 80;
+
+        function updateMicBtn() {
+            let micBtn = document.getElementById("micBtn");
+            if (hasMic) {
+                micBtn.disabled = false;
+                micBtn.title = "اضغط لتسجيل رسالة صوتية";
+            } else {
+                micBtn.disabled = true;
+                micBtn.title = "شراء ميزة الصوت من المتجر أولاً";
+            }
+        }
+
+        //--- إدارة الصور ---
+        function updateImageBtn() {
+            let imageBtn = document.getElementById("imageBtn");
+            if (hasImage) {
+                imageBtn.disabled = false;
+                imageBtn.title = "اضغط لإرسال صورة";
+                imageBtn.classList.add("image-active");
+            } else {
+                imageBtn.disabled = true;
+                imageBtn.title = "شراء ميزة إرسال الصور من المتجر أولاً";
+                imageBtn.classList.remove("image-active");
+            }
+        }
+
+        // خلفية الكتابة
+        function updateInputBg() {
+            let msgInput = document.getElementById("msgInput");
+            if (hasInputBg && inputBgImg) {
+                msgInput.classList.add("bgimg");
+                msgInput.style.background = 'url("' + inputBgImg + '")';
+                msgInput.style.backgroundSize = "cover";
+                msgInput.style.backgroundPosition = "center";
+                msgInput.style.backgroundRepeat = "no-repeat";
+                msgInput.style.color = "#222";
+            } else {
+                msgInput.classList.remove("bgimg");
+                msgInput.style.background = "#fff";
+                msgInput.style.color = "#222";
+            }
+        }
+
+        // خلفية الدردشة
+        function updateChatBg() {
+            let chatBox = document.getElementById("chatBox");
+            if (hasChatBg && chatBgImg) {
+                chatBox.classList.add("bgimg-anim");
+                chatBox.style.background = 'url("' + chatBgImg + '")';
+                chatBox.style.backgroundSize = "cover";
+                chatBox.style.backgroundPosition = "center";
+                chatBox.style.backgroundRepeat = "no-repeat";
+            } else {
+                chatBox.classList.remove("bgimg-anim");
+                chatBox.style.background = "#fff";
+            }
+        }
+
+        function openImagePicker() {
+            if (!hasImage) {
+                alert("يجب شراء ميزة إرسال الصور أولاً من المتجر.");
+                return;
+            }
+            document.getElementById('imageFileInput').value = "";
+            document.getElementById('imageFileInput').click();
+        }
+
+        async function sendImage(event) {
+            let file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith("image/")) {
+                alert("يرجى اختيار صورة فقط.");
+                return;
+            }
+            
+            try {
+                // رفع الصورة إلى التخزين السحابي
+                const storageRef = storage.ref('chat_images/' + Date.now() + '_' + file.name);
+                const uploadTask = storageRef.put(file);
+                
+                uploadTask.on('state_changed', 
+                    (snapshot) => {
+                        // يمكنك إضافة شريط تقدم هنا إذا أردت
+                    }, 
+                    (error) => {
+                        console.error("خطأ في رفع الصورة:", error);
+                        alert("حدث خطأ أثناء رفع الصورة");
+                    }, 
+                    async () => {
+                        // عند اكتمال الرفع، جلب رابط الصورة
+                        const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                        
+                        // إرسال الرسالة مع رابط الصورة
+                        const newMsg = {
+                            name: currentUser,
+                            msg: "",
+                            color: userColor,
+                            time: nowTime(),
+                            audioUrl: null,
+                            audioDur: null,
+                            imageUrl: downloadURL
+                        };
+                        
+                        const newMsgRef = database.ref('messages').push();
+                        await newMsgRef.set(newMsg);
+                        
+                        if (!isMaster) {
+                            gold += 5;
+                            await updateGold();
+                        }
+                    }
+                );
+            } catch (error) {
+                console.error("خطأ في إرسال الصورة:", error);
+                alert("حدث خطأ أثناء إرسال الصورة");
+            }
+        }
+
+        // تغيير خلفية الكتابة
+        async function setInputBgImage(event) {
+            let file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith("image/")) {
+                alert("يرجى اختيار صورة فقط.");
+                return;
+            }
+            
+            try {
+                // رفع الصورة إلى التخزين السحابي
+                const storageRef = storage.ref('input_bg/' + currentUser + '_' + Date.now() + '_' + file.name);
+                const uploadTask = storageRef.put(file);
+                
+                uploadTask.on('state_changed', 
+                    (snapshot) => {
+                        // يمكنك إضافة شريط تقدم هنا إذا أردت
+                    }, 
+                    (error) => {
+                        console.error("خطأ في رفع الصورة:", error);
+                        alert("حدث خطأ أثناء رفع صورة الخلفية");
+                    }, 
+                    async () => {
+                        // عند اكتمال الرفع، جلب رابط الصورة
+                        inputBgImg = await uploadTask.snapshot.ref.getDownloadURL();
+                        await updateGold();
+                        updateInputBg();
+                        alert("تم تعيين خلفية الكتابة بنجاح!");
+                    }
+                );
+            } catch (error) {
+                console.error("خطأ في تعيين خلفية الكتابة:", error);
+                alert("حدث خطأ أثناء تعيين خلفية الكتابة");
+            }
+        }
+
+        // تغيير خلفية الدردشة المتحركة
+        async function setChatBgImage(event) {
+            let file = event.target.files[0];
+            if (!file) return;
+            
+            if (file.type !== "image/gif") {
+                alert("يرجى اختيار صورة متحركة بصيغة GIF فقط.");
+                return;
+            }
+            
+            try {
+                // رفع الصورة إلى التخزين السحابي
+                const storageRef = storage.ref('chat_bg/' + currentUser + '_' + Date.now() + '_' + file.name);
+                const uploadTask = storageRef.put(file);
+                
+                uploadTask.on('state_changed', 
+                    (snapshot) => {
+                        // يمكنك إضافة شريط تقدم هنا إذا أردت
+                    }, 
+                    (error) => {
+                        console.error("خطأ في رفع الصورة:", error);
+                        alert("حدث خطأ أثناء رفع خلفية الدردشة");
+                    }, 
+                    async () => {
+                        // عند اكتمال الرفع، جلب رابط الصورة
+                        chatBgImg = await uploadTask.snapshot.ref.getDownloadURL();
+                        await updateGold();
+                        updateChatBg();
+                        alert("تم تعيين خلفية الدردشة المتحركة بنجاح!");
+                    }
+                );
+            } catch (error) {
+                console.error("خطأ في تعيين خلفية الدردشة:", error);
+                alert("حدث خطأ أثناء تعيين خلفية الدردشة");
+            }
+        }
+
+        function showImgFullView(imgUrl) {
+            document.getElementById('imgFullViewImg').src = imgUrl;
+            document.getElementById('imgFullView').style.display = "block";
+        }
+
+        function closeImgFullView(event) {
+            document.getElementById('imgFullViewImg').src = "";
+            document.getElementById('imgFullView').style.display = "none";
+        }
+
+        async function toggleRecording() {
+            if (!hasMic) {
+                alert("يجب شراء ميزة الصوت أولاً من المتجر.");
+                return;
+            }
+            
+            if (isRecording) {
+                stopRecording();
+                return;
+            }
+            
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert("المتصفح لا يدعم تسجيل الصوت.");
+                return;
+            }
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioChunks = [];
+                mediaRecorder = new MediaRecorder(stream);
+                
+                mediaRecorder.ondataavailable = e => {
+                    if (e.data.size > 0) audioChunks.push(e.data);
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    stream.getTracks().forEach(track => track.stop());
+                    
+                    if (audioChunks.length > 0) {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        
+                        try {
+                            // رفع الملف الصوتي إلى التخزين السحابي
+                            const storageRef = storage.ref('chat_audio/' + currentUser + '_' + Date.now() + '.webm');
+                            const uploadTask = storageRef.put(audioBlob);
+                            
+                            uploadTask.on('state_changed', 
+                                (snapshot) => {
+                                    // يمكنك إضافة شريط تقدم هنا إذا أردت
+                                }, 
+                                (error) => {
+                                    console.error("خطأ في رفع الملف الصوتي:", error);
+                                    alert("حدث خطأ أثناء رفع الملف الصوتي");
+                                }, 
+                                async () => {
+                                    // عند اكتمال الرفع، جلب رابط الملف الصوتي
+                                    const audioUrl = await uploadTask.snapshot.ref.getDownloadURL();
+                                    const durationSec = Math.round(recordedDuration);
+                                    
+                                    // إرسال الرسالة الصوتية
+                                    const newMsg = {
+                                        name: currentUser,
+                                        msg: "",
+                                        color: userColor,
+                                        time: nowTime(),
+                                        audioUrl: audioUrl,
+                                        audioDur: durationSec,
+                                        imageUrl: null
+                                    };
+                                    
+                                    const newMsgRef = database.ref('messages').push();
+                                    await newMsgRef.set(newMsg);
+                                    
+                                    if (!isMaster) {
+                                        gold += 999;
+                                        await updateGold();
+                                    }
+                                }
+                            );
+                        } catch (error) {
+                            console.error("خطأ في إرسال الرسالة الصوتية:", error);
+                            alert("حدث خطأ أثناء إرسال الرسالة الصوتية");
+                        }
+                    }
+                };
+                
+                mediaRecorder.start();
+                isRecording = true;
+                recordedDuration = 0;
+                document.getElementById("micBtn").classList.add("recording");
+                document.getElementById("micIcon").textContent = "⏹️";
+                
+                recordingTimer = setInterval(() => {
+                    recordedDuration++;
+                    if (recordedDuration >= maxDuration) {
+                        stopRecording();
+                    }
+                }, 1000);
+            } catch (e) {
+                alert("حدث خطأ أثناء محاولة تسجيل الصوت.");
+            }
+        }
+
+        let recordedDuration = 0;
+        let recordingTimer = null;
+
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                isRecording = false;
+                mediaRecorder.stop();
+                document.getElementById("micBtn").classList.remove("recording");
+                document.getElementById("micIcon").textContent = "🎤";
+                clearInterval(recordingTimer);
+            }
+        }
+
+        // --- نظام الحظر والإيقاف ---
+        async function loadBannedUsers() {
+            try {
+                const bannedRef = database.ref('bannedUsers');
+                bannedRef.on('value', (snapshot) => {
+                    bannedUsers = snapshot.val() || {};
+                });
+            } catch (error) {
+                console.error("خطأ في جلب بيانات المحظورين:", error);
+            }
+        }
+
+        async function loadMutedUsers() {
+            try {
+                const mutedRef = database.ref('mutedUsers');
+                mutedRef.on('value', (snapshot) => {
+                    mutedUsers = snapshot.val() || {};
+                });
+            } catch (error) {
+                console.error("خطأ في جلب بيانات المتوقفين:", error);
+            }
+        }
+
+        async function saveBannedUsers() {
+            try {
+                await database.ref('bannedUsers').set(bannedUsers);
+            } catch (error) {
+                console.error("خطأ في حفظ بيانات المحظورين:", error);
+            }
+        }
+
+        async function saveMutedUsers() {
+            try {
+                await database.ref('mutedUsers').set(mutedUsers);
+            } catch (error) {
+                console.error("خطأ في حفظ بيانات المتوقفين:", error);
+            }
+        }
+
+        function showUserActionsMenu(event, username) {
+            if (!isMaster) return;
+            
+            selectedUserForAction = username;
+            const menu = document.getElementById("userActionsMenu");
+            menu.style.display = "block";
+            menu.style.left = event.clientX + "px";
+            menu.style.top = event.clientY + "px";
+            
+            // إخفاء القائمة عند النقر في أي مكان آخر
+            setTimeout(() => {
+                document.addEventListener('click', hideUserActionsMenu);
+            }, 10);
+        }
+
+        function hideUserActionsMenu() {
+            document.getElementById("userActionsMenu").style.display = "none";
+            document.removeEventListener('click', hideUserActionsMenu);
+        }
+
+        function showBanOptions() {
+            document.getElementById("banOptions").style.display = "block";
+            document.getElementById("banOptions").style.left = "50%";
+            document.getElementById("banOptions").style.top = "50%";
+            document.getElementById("banOptions").style.transform = "translate(-50%, -50%)";
+        }
+
+        function closeBanOptions() {
+            document.getElementById("banOptions").style.display = "none";
+        }
+
+        function showMuteOptions() {
+            document.getElementById("muteOptions").style.display = "block";
+            document.getElementById("muteOptions").style.left = "50%";
+            document.getElementById("muteOptions").style.top = "50%";
+            document.getElementById("muteOptions").style.transform = "translate(-50%, -50%)";
+        }
+
+        function closeMuteOptions() {
+            document.getElementById("muteOptions").style.display = "none";
+        }
+
+        async function banUser(minutes) {
+            if (!isMaster || !selectedUserForAction) return;
+            
+            let expiry;
+            if (minutes === 'permanent') {
+                expiry = 'permanent';
+            } else {
+                expiry = Date.now() + (minutes * 60 * 1000);
+            }
+            
+            bannedUsers[selectedUserForAction] = {
+                bannedBy: currentUser,
+                bannedAt: Date.now(),
+                expiry: expiry,
+                deviceId: getDeviceId() // نحفظ معرف الجهاز لمنع التحايل
+            };
+            
+            await saveBannedUsers();
+            closeBanOptions();
+            hideUserActionsMenu();
+            
+            alert(`تم حظر المستخدم ${selectedUserForAction} بنجاح!`);
+        }
+
+        async function muteUser(minutes) {
+            if (!isMaster || !selectedUserForAction) return;
+            
+            const expiry = Date.now() + (minutes * 60 * 1000);
+            
+            mutedUsers[selectedUserForAction] = {
+                mutedBy: currentUser,
+                mutedAt: Date.now(),
+                expiry: expiry
+            };
+            
+            await saveMutedUsers();
+            closeMuteOptions();
+            hideUserActionsMenu();
+            
+            alert(`تم إيقاف المستخدم ${selectedUserForAction} عن الكتابة لمدة ${minutes} دقيقة`);
+        }
+
+        async function showBannedUsers() {
+            if (!isMaster) return;
+            
+            const window = document.getElementById("bannedUsersWindow");
+            const list = document.getElementById("bannedUsersList");
+            list.innerHTML = "";
+            
+            // جلب أحدث بيانات المحظورين والمتوقفين
+            await loadBannedUsers();
+            await loadMutedUsers();
+            
+            // عرض المحظورين
+            for (const username in bannedUsers) {
+                const banInfo = bannedUsers[username];
+                const item = document.createElement("div");
+                item.className = "banned-user-item";
+                
+                const infoDiv = document.createElement("div");
+                infoDiv.className = "banned-user-info";
+                
+                const nameSpan = document.createElement("div");
+                nameSpan.className = "banned-user-name";
+                nameSpan.textContent = username;
+                
+                const typeSpan = document.createElement("div");
+                typeSpan.className = "banned-user-type";
+                typeSpan.textContent = "محظور";
+                
+                const timeSpan = document.createElement("div");
+                timeSpan.className = "banned-user-time";
+                
+                if (banInfo.expiry === 'permanent') {
+                    timeSpan.textContent = "حظر دائم";
+                } else {
+                    const remainingTime = banInfo.expiry - Date.now();
+                    if (remainingTime > 0) {
+                        const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        timeSpan.textContent = `متبقي: ${days} يوم و ${hours} ساعة`;
+                    } else {
+                        timeSpan.textContent = "انتهى الحظر";
+                    }
+                }
+                
+                infoDiv.appendChild(nameSpan);
+                infoDiv.appendChild(typeSpan);
+                infoDiv.appendChild(timeSpan);
+                item.appendChild(infoDiv);
+                
+                const unbanBtn = document.createElement("button");
+                unbanBtn.className = "unban-btn";
+                unbanBtn.textContent = "رفع الحظر";
+                unbanBtn.onclick = function() {
+                    unbanUser(username);
+                };
+                item.appendChild(unbanBtn);
+                
+                list.appendChild(item);
+            }
+            
+            // عرض المتوقفين
+            for (const username in mutedUsers) {
+                const muteInfo = mutedUsers[username];
+                const item = document.createElement("div");
+                item.className = "banned-user-item";
+                
+                const infoDiv = document.createElement("div");
+                infoDiv.className = "banned-user-info";
+                
+                const nameSpan = document.createElement("div");
+                nameSpan.className = "banned-user-name";
+                nameSpan.textContent = username;
+                
+                const typeSpan = document.createElement("div");
+                typeSpan.className = "banned-user-type";
+                typeSpan.textContent = "متوقف عن الكتابة";
+                
+                const timeSpan = document.createElement("div");
+                timeSpan.className = "banned-user-time";
+                
+                const remainingTime = muteInfo.expiry - Date.now();
+                if (remainingTime > 0) {
+                    const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+                    const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+                    timeSpan.textContent = `متبقي: ${hours} ساعة و ${minutes} دقيقة`;
+                } else {
+                    timeSpan.textContent = "انتهى الإيقاف";
+                }
+                
+                infoDiv.appendChild(nameSpan);
+                infoDiv.appendChild(typeSpan);
+                infoDiv.appendChild(timeSpan);
+                item.appendChild(infoDiv);
+                
+                const unmuteBtn = document.createElement("button");
+                unmuteBtn.className = "unban-btn";
+                unmuteBtn.textContent = "رفع الإيقاف";
+                unmuteBtn.onclick = function() {
+                    unmuteUser(username);
+                };
+                item.appendChild(unmuteBtn);
+                
+                list.appendChild(item);
+            }
+            
+            window.style.display = "block";
+        }
+
+        function closeBannedUsers() {
+            document.getElementById("bannedUsersWindow").style.display = "none";
+        }
+
+        async function unbanUser(username) {
+            if (!isMaster) return;
+            
+            delete bannedUsers[username];
+            await saveBannedUsers();
+            showBannedUsers();
+            alert(`تم رفع الحظر عن المستخدم ${username}`);
+        }
+
+        async function unmuteUser(username) {
+            if (!isMaster) return;
+            
+            delete mutedUsers[username];
+            await saveMutedUsers();
+            showBannedUsers();
+            alert(`تم رفع الإيقاف عن المستخدم ${username}`);
+        }
+
+        // حذف كل رسائل الشات بالكامل (خاص MASTER)
+        async function deleteAllChat() {
+            if (!isMaster) return;
+            
+            if (!confirm("هل أنت متأكد أنك تريد حذف كل ما تم إرساله في الشات نهائيًا؟")) return;
+            
+            try {
+                await database.ref('messages').remove();
+                alert("تم حذف جميع رسائل الشات والصور والصوتيات بنجاح!");
+            } catch (error) {
+                console.error("خطأ في حذف الرسائل:", error);
+                alert("حدث خطأ أثناء حذف الرسائل");
+            }
+        }
+
+        // دالة للحصول على معرف فريد للجهاز (بسيط لأغراض التوضيح)
+        function getDeviceId() {
+            let deviceId = localStorage.getItem('deviceId');
+            if (!deviceId) {
+                deviceId = 'device-' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('deviceId', deviceId);
+            }
+            return deviceId;
+        }
+
+        // --- تهيئة التطبيق عند التحميل ---
+        window.onload = async function() {
+            // الاستماع لتغير حالة المصادقة
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    // المستخدم مسجل الدخول
+                    const loggedIn = await loadSession();
+                    
+                    if (loggedIn) {
+                        document.getElementById("loginOverlay").style.display = "none";
+                        document.getElementById("logoutBtn").style.display = "inline-block";
+                        
+                        if (isMaster) {
+                            document.getElementById("deleteBtn").style.display = "inline-block";
+                            document.getElementById("bannedBtn").style.display = "inline-block";
+                        } else {
+                            document.getElementById("deleteBtn").style.display = "none";
+                            document.getElementById("bannedBtn").style.display = "none";
+                        }
+                        
+                        updateGold();
+                        showChatColor();
+                        updateShopColors();
+                        updateMicBtn();
+                        updateImageBtn();
+                        updateInputBg();
+                        updateChatBg();
+                        loadChat();
+                        enableChat();
+                        
+                        // جلب بيانات المحظورين والمتوقفين
+                        loadBannedUsers();
+                        loadMutedUsers();
+                    }
+                } else {
+                    // المستخدم غير مسجل الدخول
+                    document.getElementById("loginOverlay").style.display = "flex";
+                    document.getElementById("logoutBtn").style.display = "none";
+                    document.getElementById("deleteBtn").style.display = "none";
+                    document.getElementById("bannedBtn").style.display = "none";
+                    document.getElementById("msgInput").disabled = true;
+                    document.getElementById("sendBtn").disabled = true;
+                    updateMicBtn();
+                    updateImageBtn();
+                }
+            });
+        };
+
+        function enableChat() {
+            document.getElementById("msgInput").disabled = false;
+            document.getElementById("sendBtn").disabled = false;
+            updateMicBtn();
+            updateImageBtn();
+            updateInputBg();
+            updateChatBg();
+        }
+
+        const loginOverlay = document.getElementById("loginOverlay");
+        const observer = new MutationObserver(() => {
+            if (loginOverlay.style.display === "none") {
+                enableChat();
+            }
+        });
+        observer.observe(loginOverlay, { attributes: true, attributeFilter: ['style'] });
+    </script>
+</body>
+</html>
